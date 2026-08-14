@@ -7,6 +7,6 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
     'address' => env('ADDRESS', 'Test Address'),
     'country' => 'United States',
-    'currency_symbol' => '&#36;',
-    'currency_code' => 'USD',
+    'currency_symbol' => 'RWF',
+    'currency_code' => 'RWF',
 ];

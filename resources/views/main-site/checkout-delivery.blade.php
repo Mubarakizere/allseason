@@ -153,7 +153,8 @@
 
           var ac = new google.maps.places.Autocomplete(input, {
               types: ['geocode'],
-              fields: ['address_components', 'geometry', 'formatted_address']
+              fields: ['address_components', 'geometry', 'formatted_address'],
+              componentRestrictions: { country: 'rw' }
           });
 
           ac.addListener('place_changed', function () {
@@ -183,7 +184,6 @@
                                                               || getComponent('sublocality')
                                                               || '';
               document.getElementById('del_state').value      = getComponent('administrative_area_level_1');
-              document.getElementById('del_postal').value     = getComponent('postal_code');
               document.getElementById('del_country').value    = getComponent('country');
 
               if (place.geometry && place.geometry.location) {
@@ -341,34 +341,30 @@
                   <div class="col-md-6">
                     <label class="form-label">Street</label>
                     <input id="del_line1" name="new[line1]" class="form-control"
-                           value="{{ old('new.line1') }}" readonly>
+                           value="{{ old('new.line1') }}">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Apt / Suite</label>
                     <input id="del_line2" name="new[line2]" class="form-control"
-                           value="{{ old('new.line2') }}" readonly>
+                           value="{{ old('new.line2') }}">
                   </div>
 
                   <div class="col-md-6">
                     <label class="form-label">City</label>
                     <input id="del_city" name="new[city]" class="form-control"
-                           value="{{ old('new.city') }}" readonly>
+                           value="{{ old('new.city') }}">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">State / Province</label>
                     <input id="del_state" name="new[state]" class="form-control"
-                           value="{{ old('new.state') }}" readonly>
+                           value="{{ old('new.state') }}">
                   </div>
 
-                  <div class="col-md-6">
-                    <label class="form-label">Postal Code</label>
-                    <input id="del_postal" name="new[postal_code]" class="form-control"
-                           value="{{ old('new.postal_code') }}" readonly>
-                  </div>
+
                   <div class="col-md-6">
                     <label class="form-label">Country</label>
                     <input id="del_country" name="new[country]" class="form-control"
-                           value="{{ old('new.country') }}" readonly>
+                           value="{{ old('new.country') }}">
                   </div>
 
                   <input type="hidden" id="del_latitude" name="new[latitude]" value="{{ old('new.latitude') }}">

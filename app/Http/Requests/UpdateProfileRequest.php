@@ -23,7 +23,7 @@ class UpdateProfileRequest extends FormRequest
             'email' => 'required|email|max:255|unique:users,email,' . $userId,
             'phone_number' => 'nullable|string|max:15',
             'address' => 'nullable|string|max:255',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ];
     }
 
@@ -52,7 +52,7 @@ class UpdateProfileRequest extends FormRequest
             'address.max' => 'The address may not be greater than 255 characters.',
             
             'profile_photo.image' => 'The profile photo must be an image.',
-            'profile_photo.mimes' => 'The profile photo must be a file of type: jpeg, png, jpg.',
+            'profile_photo.mimes' => 'The profile photo must be a file of type: jpeg, png, jpg, webp.',
             'profile_photo.max' => 'The profile photo may not be greater than 2048 kilobytes.',
         ];
     }

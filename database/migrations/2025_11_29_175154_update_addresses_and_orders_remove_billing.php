@@ -22,10 +22,9 @@ return new class extends Migration
         });
 
  
-        DB::statement("
-            ALTER TABLE `addresses`
-            MODIFY `label` VARCHAR(255) NOT NULL DEFAULT 'delivery'
-        ");
+        Schema::table('addresses', function (Blueprint $table) {
+            $table->string('label', 255)->default('delivery')->change();
+        });
     }
 
     /**
@@ -44,9 +43,8 @@ return new class extends Migration
             }
         });
 
-         DB::statement("
-            ALTER TABLE `addresses`
-            MODIFY `label` ENUM('delivery','billing') NOT NULL DEFAULT 'delivery'
-        ");
+         Schema::table('addresses', function (Blueprint $table) {
+            $table->enum('label', ['delivery','billing'])->default('delivery')->change();
+        });
     }
 };

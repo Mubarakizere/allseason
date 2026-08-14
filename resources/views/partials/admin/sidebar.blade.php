@@ -18,12 +18,14 @@
               </li>
 
 
+              @if($loggedInUser->role !== 'sales')
               <li class="nav-item {{ request()->route()->named('admin.dashboard') ? 'active-nav' : '' }} ">
                 <a class="nav-link" href="{{ route('admin.dashboard') }}">
                     <i class="fa fa-desktop menu-icon"></i>
                     <span class="menu-title">Dashboard</span>
                 </a>
-            </li>
+              </li>
+              @endif
             
  
  
@@ -37,24 +39,37 @@
           
       
           <li class="nav-item {{ Request::is('admin/order*') ? 'active-nav' : '' }}">
-            <a class="nav-link" href="{{ route('admin.orders.index') }}">
+            <a class="nav-link {{ Request::is('admin/order*') ? '' : 'collapsed' }}" data-toggle="collapse" href="#orders-menu" aria-expanded="{{ Request::is('admin/order*') ? 'true' : 'false' }}" aria-controls="orders-menu">
                 <i class="fa fa-file menu-icon"></i>
                 <span class="menu-title">Manage Orders</span>
+                <i class="menu-arrow"></i>
             </a>
-        </li>
-        <li class="nav-item {{ request()->route()->named('admin.table-bookings') ? 'active-nav' : '' }}">
-          <a class="nav-link" href="{{ route('admin.table-bookings') }}">
-              <i class="fa fa-folder-open menu-icon"></i>
-              <span class="menu-title">Manage Bookings</span>
-          </a>
-        </li>        
-        <li class="nav-item {{ Request::is('admin/blog*') ? 'active-nav' : '' }}">
-            <a class="nav-link" href="{{ route('admin.blog.index') }}">
-                <i class="far fa-newspaper menu-icon"></i>
-                <span class="menu-title">Manage Blog</span>
+            <div class="collapse {{ Request::is('admin/order*') ? 'show' : '' }}" id="orders-menu">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.orders.index') }}">All Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.orders.index', ['filter' => 'delivery']) }}">Delivery Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.orders.index', ['filter' => 'instore']) }}">Instore Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.orders.index', ['filter' => 'pending']) }}">Pending Orders</a>
+                    </li>
+                </ul>
+            </div>
+          </li>
+          @if($loggedInUser->role !== 'sales')
+          <li class="nav-item {{ request()->route()->named('admin.table-bookings') ? 'active-nav' : '' }}">
+            <a class="nav-link" href="{{ route('admin.table-bookings') }}">
+                <i class="fa fa-folder-open menu-icon"></i>
+                <span class="menu-title">Manage Bookings</span>
             </a>
-        </li>
-        
+          </li>        
+          @endif
+
 
 
         @if ($loggedInUser->role == "global_admin")
@@ -64,6 +79,75 @@
               <i class="fa fa-users menu-icon"></i>
               <span class="menu-title">Manage Admins</span>
           </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#venue-settings" aria-expanded="false" aria-controls="venue-settings">
+                <i class="fa fa-campground menu-icon"></i>
+                <span class="menu-title">Venue Management</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="venue-settings">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.venues.index') }}">Venues</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.venue-packages.index') }}">Packages</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.venue-bookings.index') }}">Bookings</a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#room-settings" aria-expanded="false" aria-controls="room-settings">
+                <i class="fa fa-bed menu-icon"></i>
+                <span class="menu-title">Room Management</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="room-settings">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.rooms.index') }}">Rooms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.room-bookings.index') }}">Bookings</a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+              
+        <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#stock-settings" aria-expanded="false" aria-controls="stock-settings">
+                <i class="fa fa-boxes menu-icon"></i>
+                <span class="menu-title">Stock Management</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="stock-settings">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.suppliers.index') }}">Suppliers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.stock-categories.index') }}">Categories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.stock-items.index') }}">Stock Items</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.stock-purchases.index') }}">Purchases (In)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.stock-issues.index') }}">Issues (Out)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.stock-history.index') }}">History</a>
+                    </li>
+                </ul>
+            </div>
         </li>
               
         <li class="nav-item">
@@ -79,6 +163,12 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('admin.categories.index') }}">Category</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.waiters.index') }}">Waiters</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.restaurant-tables.index') }}">Restaurant Tables</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('admin.testimonies.index') }}">Testimony</a>

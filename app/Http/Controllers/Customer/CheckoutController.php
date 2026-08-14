@@ -60,8 +60,17 @@ class CheckoutController extends Controller
 
     public function details()
     {
-        $user = Auth::user();
-        return view('main-site.checkout-details', compact('user'));
+        $order_no = $this->generateOrderNumber();
+        $data = session(self::SESSION_KEY, []);
+        $data['customer_confirmed'] = true;
+        
+        if (!isset($data['order_no'])) {
+            $data['order_no'] = $order_no;
+        }
+
+        session([self::SESSION_KEY => $data]);
+
+        return redirect()->route('customer.checkout.fulfilment');
     }
 
     public function detailsPost(Request $request)
@@ -165,7 +174,6 @@ class CheckoutController extends Controller
                 'new.line2'       => ['nullable','string','max:255'],
                 'new.city'        => ['nullable','string','max:150'],
                 'new.state'       => ['nullable','string','max:150'],
-                'new.postal_code' => ['nullable','string','max:30'],
                 'new.country'     => ['nullable','string','max:150'],
                 'new.latitude'    => ['nullable','numeric'],
                 'new.longitude'   => ['nullable','numeric'],
@@ -175,7 +183,6 @@ class CheckoutController extends Controller
                 'saved_address_id.required' => 'Please select one of your saved addresses, or choose “Add a new address”.',
                 'new.line1.required'        => 'Please enter the first line of your new address.',
                 'new.city.required'         => 'Please enter the city for your new address.',
-                'new.postal_code.required'  => 'Please enter the postal code for your new address.',
                 'new.country.required'      => 'Please select the country for your new address.',
                 'new.latitude.required'     => 'Please provide the latitude for your new address.',
                 'new.longitude.required'    => 'Please provide the longitude for your new address.',        
@@ -187,7 +194,6 @@ class CheckoutController extends Controller
             'saved_address_id'   => 'saved address',
             'new.line1'          => 'address line 1',
             'new.city'           => 'city',
-            'new.postal_code'    => 'postal code',
             'new.country'        => 'country',
             'new.latitude'       => 'latitude',
             'new.longitude'      => 'longitude',
@@ -195,7 +201,7 @@ class CheckoutController extends Controller
 
         // ---- Conditional validation ----
         $v->sometimes('saved_address_id', 'required', fn($input) => $input->mode === 'saved');
-        foreach (['new.line1','new.city','new.postal_code','new.country'] as $f) {
+        foreach (['new.line1','new.city','new.country'] as $f) {
             $v->sometimes($f, 'required', fn($input) => $input->mode === 'new');
         }
 
@@ -215,19 +221,41 @@ class CheckoutController extends Controller
                 $destination_latitude = (float) $request->input('new.latitude');
                 $destination_longitude = (float) $request->input('new.longitude');
 
+                if (!$destination_latitude || !$destination_longitude) {
+                    $addressString = trim(sprintf('%s %s %s %s', $request->input('new.line1'), $request->input('new.line2'), $request->input('new.city'), $request->input('new.country')));
+                    $geoResponse = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+                        'address' => $addressString,
+                        'key' => config('services.google_maps.api_key')
+                    ]);
+                    $geoData = $geoResponse->json();
+                    if ($geoResponse->successful() && isset($geoData['results'][0]['geometry']['location'])) {
+                        $destination_latitude = $geoData['results'][0]['geometry']['location']['lat'];
+                        $destination_longitude = $geoData['results'][0]['geometry']['location']['lng'];
+                        // Save to request for the DB creation below
+                        $request->merge([
+                            'new' => array_merge($request->input('new', []), [
+                                'latitude' => $destination_latitude,
+                                'longitude' => $destination_longitude
+                            ])
+                        ]);
+                    } else {
+                        // Allow any address if geocoding fails
+                        $destination_latitude = null;
+                        $destination_longitude = null;
+                    }
+                }
+
  
                 // Distance
                 $distanceData = DistanceHelper::getDistance($origin_latitude, $origin_longitude, $destination_latitude, $destination_longitude);
 
-                if (isset($distanceData['error'])) {
-                    return back()->withErrors("Unfortunately, we are unable to deliver to the provided address. Please check the address details or contact support for assistance.");
-                 }
-
-                $distance_in_miles = $distanceData['value_in_miles'];
-
+                $distance_in_miles = 0;
+                if (!isset($distanceData['error'])) {
+                    $distance_in_miles = $distanceData['value_in_miles'];
+                }
  
  
-                if ($distance_in_miles > $this->distance_limit_in_miles) {
+                if ($distance_in_miles > $this->distance_limit_in_miles && !isset($distanceData['error'])) {
                     $error_message = "We're sorry! We can only deliver within {$this->distance_limit_in_miles} miles. You can still place your order as a walk-in at our restaurant located at {$this->companyAddress->full_address}. We look forward to serving you!";
                     return back()->withErrors($error_message)->withInput();
                 }
@@ -321,14 +349,12 @@ class CheckoutController extends Controller
             // Distance
             $distanceData = DistanceHelper::getDistance($origin_latitude, $origin_longitude, $destination_latitude, $destination_longitude);
 
-            if (isset($distanceData['error'])) {
-                return back()->withErrors("Unfortunately, we are unable to deliver to the provided address. Please check the address details or contact support for assistance.");
+            $distance_in_miles = 0;
+            if (!isset($distanceData['error'])) {
+                $distance_in_miles = $distanceData['value_in_miles'];
             }
 
-            $distance_in_miles = $distanceData['value_in_miles'];
-
-
-            if ($distance_in_miles > $this->distance_limit_in_miles) {
+            if ($distance_in_miles > $this->distance_limit_in_miles && !isset($distanceData['error'])) {
                 $error_message = "We're sorry! We can only deliver within {$this->distance_limit_in_miles} miles. You can still place your order as a walk-in at our restaurant located at {$this->companyAddress->full_address}. We look forward to serving you!";
                 return back()->withErrors($error_message)->withInput();
             }
@@ -433,6 +459,7 @@ class CheckoutController extends Controller
             $qty = (int) ($item['quantity'] ?? 1);
 
             $order->orderItems()->create([
+                'menu_id'   => $item['id'] ?? null,
                 'menu_name' => $item['name'],
                 'quantity'  => $qty,
                 'subtotal'  => $item['price'] * $qty,
@@ -482,9 +509,8 @@ class CheckoutController extends Controller
             return $this->processPaystackPayment($order, $total, $user);
         }
 
-
-
-
+        // Default or provider === 'weflexfy'
+        return $this->processWeFlexfyPayment($order, $total, $user);
     }
 
     /** Helpers */
@@ -506,6 +532,14 @@ class CheckoutController extends Controller
 
     private function processStripePayment($order, $line_items, $user)
     {
+        // Mock Stripe payment for development
+        $mock_session_id = 'mock_session_' . uniqid();
+        return redirect()->route('payment.success', [
+            'session_id' => $mock_session_id,
+            'order_no'   => $order->order_no
+        ]);
+
+        /*
         Stripe::setApiKey($this->stripeSecret);
 
         $checkout_session = \Stripe\Checkout\Session::create([
@@ -520,6 +554,7 @@ class CheckoutController extends Controller
         ]);
 
         return redirect($checkout_session->url);
+        */
     }
 
 
@@ -554,7 +589,54 @@ class CheckoutController extends Controller
         return redirect($data['data']['authorization_url']);
     }
 
+    private function processWeFlexfyPayment($order, $amount, $user)
+    {
+        $weFlexfyService = app(\App\Services\WeFlexfyService::class);
 
+        $transfers = [
+            [
+                'percentage' => 100,
+                'recipientNumber' => config('payments.weflexfy.recipient_number', '') ?: ($user->phone_number ?? ''),
+                'payload' => [
+                    'type' => 'food_order',
+                    'order_no' => $order->order_no,
+                    'internalRef' => 'ORD-' . $order->order_no,
+                ]
+            ]
+        ];
 
+        $fullName = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+        if (empty($fullName)) {
+            $fullName = $user->name ?? 'Customer';
+        }
 
+        $response = $weFlexfyService->initiatePayment(
+            $amount,
+            $fullName,
+            $user->email ?? 'customer@example.com',
+            $user->phone_number ?? '',
+            $transfers,
+            strtoupper($this->currencyCode)
+        );
+
+        if (!$response['success'] || empty($response['iframeUrl'])) {
+            return back()->withErrors($response['message'] ?? 'Unable to initialize WeFlexfy payment portal.');
+        }
+
+        // Store request token on order
+        $order->weflexfy_request_token = $response['requestToken'];
+        $order->session_id = $response['requestToken'];
+        $order->payment_method = 'WEFLEXFY';
+        $order->save();
+
+        $siteSettings = SiteSetting::latest()->first();
+
+        return view('main-site.weflexfy-pay', [
+            'iframeUrl' => $response['iframeUrl'],
+            'amount' => $amount,
+            'currencySymbol' => $siteSettings->currency_symbol ?? 'RWF',
+            'title' => 'Food Order #' . $order->order_no . ' Payment',
+            'redirectUrl' => route('payment.success', ['session_id' => $response['requestToken'], 'order_no' => $order->order_no]),
+        ]);
+    }
 }

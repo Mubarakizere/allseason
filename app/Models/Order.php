@@ -19,6 +19,7 @@ class Order extends Model
         'status',
         'status_online_pay',
         'session_id',
+        'weflexfy_request_token',
         'payment_method',
         'additional_info',
         'delivery_fee',
@@ -26,7 +27,23 @@ class Order extends Model
         'price_per_mile',
         'delivery_address_id',
         'pickup_address_id',
+        'is_printed',
+        'waiter_id',
+        'restaurant_table_id',
+        'discount_amount',
+        'amount_tendered',
+        'change_due',
     ];
+
+    public function waiter()
+    {
+        return $this->belongsTo(Waiter::class);
+    }
+
+    public function restaurantTable()
+    {
+        return $this->belongsTo(RestaurantTable::class);
+    }
 
     // Customer who placed the order
     public function customer()

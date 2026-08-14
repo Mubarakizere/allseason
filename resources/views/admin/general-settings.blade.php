@@ -736,6 +736,12 @@
                     <label for="distance_limit_in_miles">Distance Limit in Miles</label>
                     <input type="number" name="distance_limit_in_miles" id="distance_limit_in_miles" class="form-control" value="{{ $order_settings->distance_limit_in_miles ?? '' }}" required>
                 </div>
+                
+                <div class="form-group">
+                    <label for="notification_emails">Order Notification Emails (comma-separated)</label>
+                    <input type="text" name="notification_emails" id="notification_emails" class="form-control" value="{{ $order_settings->notification_emails ?? '' }}" placeholder="admin1@example.com, admin2@example.com">
+                    <small class="form-text text-muted">Leave blank if you do not wish to receive order notifications.</small>
+                </div>
     
                 <button type="submit" class="btn btn-primary">Save</button>
             </form>

@@ -51,8 +51,19 @@ class CustomerController extends Controller
         }
 
         $orders = $ordersQuery->orderBy('created_at', 'desc')->get();
+        
+        // Fetch Room Bookings for this customer
+        $roomBookingsQuery = \App\Models\RoomBooking::with('room')->where('customer_email', $user->email);
+        if ($filter !== 'all') {
+            if ($filter === 'completed') {
+                $roomBookingsQuery->where('status', 'confirmed');
+            } else {
+                $roomBookingsQuery->where('status', $filter);
+            }
+        }
+        $room_bookings = $roomBookingsQuery->orderBy('created_at', 'desc')->get();
 
-        return view('customer.orders', compact('user', 'orders', 'filter'));
+        return view('customer.orders', compact('user', 'orders', 'room_bookings', 'filter'));
     }
 
 
@@ -69,7 +80,17 @@ class CustomerController extends Controller
     public function account()
     {
         $user = Auth::User();  
-        return view('customer.account', compact('user'));
+        
+        // Fetch recent room bookings
+        $room_bookings = \App\Models\RoomBooking::with('room')->where('customer_email', $user->email)->orderBy('created_at', 'desc')->take(5)->get();
+        
+        // Fetch recent food orders
+        $food_orders = $user->customerOrders()->where('status_online_pay', 'paid')->orderBy('created_at', 'desc')->take(5)->get();
+        
+        // Fetch recent venue bookings
+        $venue_bookings = \App\Models\VenueBooking::with(['venue', 'package'])->where('customer_email', $user->email)->orderBy('created_at', 'desc')->take(5)->get();
+        
+        return view('customer.account', compact('user', 'room_bookings', 'food_orders', 'venue_bookings'));
     }
 
 

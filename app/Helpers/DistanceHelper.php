@@ -22,6 +22,7 @@ class DistanceHelper
         $data = $response->json();
   
         if ($response->successful() 
+            && isset($data['rows'][0]['elements'][0]['status'])
             && $data['rows'][0]['elements'][0]['status'] === "OK") {
 
             $meters = $data['rows'][0]['elements'][0]['distance']['value'];
@@ -35,7 +36,7 @@ class DistanceHelper
         }
 
         return [
-            'error' => $data['rows'][0]['elements'][0]['status'] ?? 'Unable to calculate distance',
+            'error' => $data['rows'][0]['elements'][0]['status'] ?? $data['error_message'] ?? 'Unable to calculate distance',
         ];
     }
 

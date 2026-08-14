@@ -25,8 +25,9 @@ class MenuController extends Controller
     
     public function index()
     {
-        $categories = Category::with('menus')->get();  
-        return view('admin.menus', compact('categories'));
+        $categories = Category::with(['menus.recipes'])->get();  
+        $stockItems = \App\Models\StockItem::all();
+        return view('admin.menus', compact('categories', 'stockItems'));
     }
 
     public function store(MenuRequest $request)
@@ -37,7 +38,15 @@ class MenuController extends Controller
             $validated['image'] = $this->handleImageUpload($validated['image'], "menus");
         }
     
-        Menu::create($validated);
+        $menu = Menu::create($validated);
+    
+        if ($request->filled('stock_item_id')) {
+            \App\Models\MenuRecipe::create([
+                'menu_id' => $menu->id,
+                'stock_item_id' => $request->stock_item_id,
+                'quantity' => 1
+            ]);
+        }
     
         return back()->with('success', 'Menu created successfully!');
     }
@@ -61,6 +70,15 @@ class MenuController extends Controller
     
         $menu->update($validated);
     
+        $menu->recipes()->delete();
+        if ($request->filled('stock_item_id')) {
+            \App\Models\MenuRecipe::create([
+                'menu_id' => $menu->id,
+                'stock_item_id' => $request->stock_item_id,
+                'quantity' => 1
+            ]);
+        }
+
         return back()->with('success', 'Menu updated successfully!');
     }
     

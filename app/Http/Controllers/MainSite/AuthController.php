@@ -210,6 +210,10 @@ class AuthController extends Controller
 
     private function getDashboardRoute(User $user): string
     {
+        if ($user->role === 'sales') {
+            return 'admin.pos.index';
+        }
+
         return in_array($user->role, ['admin', 'global_admin']) 
             ? 'admin.dashboard' 
             : 'home';

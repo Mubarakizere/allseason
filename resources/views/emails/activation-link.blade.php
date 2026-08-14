@@ -81,7 +81,7 @@
     <div class="container">
          <!-- Logo -->
          <div class="logo">
-            <img src="{{ config('site.url') . 'assets/images/logo_light.png' }}" alt="Logo">
+            <h2 style="color: #333; margin: 0; font-family: sans-serif;">All The Season Garden</h2>
         </div>       
 
         <h1>Activate Your Account</h1>

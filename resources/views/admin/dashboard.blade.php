@@ -102,6 +102,61 @@
 
       @include('partials.order-stats')
 
+      <div class="row mt-4">
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-success">
+            <div class="inner">
+              <h3>{!! $site_settings->currency_symbol !!}{{ number_format($salesToday, 2) }}</h3>
+              <p>Sales Today</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-cash"></i>
+            </div>
+            <a href="{{ route('admin.orders.index', ['filter' => 'completed']) }}" class="small-box-footer">View Orders <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-primary">
+            <div class="inner">
+              <h3>{{ $activeRoomBookings }}</h3>
+              <p>Active Room Bookings</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-ios-home"></i>
+            </div>
+            <a href="{{ route('admin.room-bookings.index') }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-secondary">
+            <div class="inner">
+              <h3>{{ $activeVenueBookings }}</h3>
+              <p>Active Venue Bookings</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-flag"></i>
+            </div>
+            <a href="{{ route('admin.venue-bookings.index') }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-info">
+            <div class="inner">
+              <h3>{{ $totalCustomers }}</h3>
+              <p>Total Customers</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-person-stalker"></i>
+            </div>
+            <a href="#" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+      </div>
+
 
       <div class="row">
         <div class="col-lg-12 d-flex grid-margin stretch-card">

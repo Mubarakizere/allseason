@@ -24,8 +24,20 @@ return new class extends Migration
         });
 
         /**
-         * STEP 2 — DROP OLD restaurant_addresses TABLE
+         * STEP 2 — CREATE NEW company_addresses TABLE & DROP OLD restaurant_addresses TABLE
          */
+        Schema::create('company_addresses', function (Blueprint $table) {
+            $table->id();
+            $table->string('street')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->string('country')->nullable();
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->timestamps();
+        });
+
         Schema::dropIfExists('restaurant_addresses');
 
         /**
@@ -66,6 +78,8 @@ return new class extends Migration
             $table->string('address');
             $table->timestamps();
         });
+
+        Schema::dropIfExists('company_addresses');
 
         // Add back original column + FK referencing restaurant_addresses
         Schema::table('orders', function (Blueprint $table) {

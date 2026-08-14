@@ -18,14 +18,14 @@
       <!-- small box -->
       <div class="small-box bg-success">
         <div class="inner">
-          <h3>{{ $online_orders_count }}</h3>
+          <h3>{{ $delivery_orders_count }}</h3>
 
-          <p>Online Orders</p>
+          <p>Delivery Orders</p>
         </div>
         <div class="icon">
           <i class="ion ion-android-globe"></i>
         </div>
-        <a href="{{ route('admin.orders.index', ['filter' => 'online']) }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
+        <a href="{{ route('admin.orders.index', ['filter' => 'delivery']) }}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
       </div>
     </div>
     <!-- ./col -->

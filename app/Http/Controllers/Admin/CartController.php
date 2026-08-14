@@ -22,7 +22,13 @@ class CartController extends Controller
     public function index()
     {
         $menus = Menu::all();
-        return view('admin.pos-index',compact('menus'));
+        $categories = \App\Models\Category::all();
+        $waiters = \App\Models\Waiter::where('is_active', true)->get();
+        $tables = \App\Models\RestaurantTable::where('is_active', true)
+            ->with(['orders' => function($q) {
+                $q->where('status', 'pending')->where('order_type', 'instore');
+            }])->get();
+        return view('admin.pos-index', compact('menus', 'categories', 'waiters', 'tables'));
     } 
 
 }

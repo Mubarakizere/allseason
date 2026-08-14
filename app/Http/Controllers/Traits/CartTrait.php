@@ -30,6 +30,7 @@ trait CartTrait
                 'price' => $request->price,
                 'img_src' => $request->img_src ?? '',
                 'quantity' => 1,
+                'item_note' => $request->item_note ?? '',
             ];            
         }
     
@@ -72,6 +73,7 @@ trait CartTrait
 
 
 
+
     public function getCart(Request $request)
     {
         $cart = session()->get($request->cartkey, []);
@@ -100,12 +102,29 @@ trait CartTrait
     
         if (isset($cart[$id])) {
             $cart[$id]['quantity'] = $quantity;
+            if ($request->has('item_note')) {
+                $cart[$id]['item_note'] = $request->input('item_note');
+            }
             session()->put($request->cartkey, $cart);
         }
     
         $totalItems = $this->getTotalItems($request->cartkey);
     
         return response()->json(['success' => true, 'cart' => $cart, 'total_items' => $totalItems]);
+    }
+
+    public function updateCartItemNote(Request $request)
+    {
+        $cart = session()->get($request->cartkey, []);
+        $id = $request->input('id');
+        $itemNote = $request->input('item_note', '');
+
+        if (isset($cart[$id])) {
+            $cart[$id]['item_note'] = $itemNote;
+            session()->put($request->cartkey, $cart);
+        }
+
+        return response()->json(['success' => true, 'cart' => $cart]);
     }
     
     

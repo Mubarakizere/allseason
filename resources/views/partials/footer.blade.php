@@ -7,7 +7,7 @@
                 <div class="col-xl-6 col-md-6 col-sm-12">
                 	<div class="widget">
                         <div class="footer_logo">
-                            <a href="index-6.html"><img src="/assets/images/logo_light.png" alt="logo"></a>
+                            <a href="{{ route('home') }}"><h4 class="text-white font-weight-bold" style="letter-spacing: 1px;">All The Season Garden</h4></a>
                         </div>
                         <p>At {{ config('site.name') }}, we pride ourselves on bringing you the authentic flavors of West Africa. Our expertly crafted dishes and warm hospitality create a dining experience you won't forget.</p>
                     </div>
@@ -68,7 +68,7 @@
                 <div class="bottom_footer border-top-tran">
                     <div class="row">
                         <div class="col-md-6">
-                            <p class="mb-0 text-center"><script>document.write(new Date().getFullYear());</script> &copy;   All Rights Reserved | <span class="text_default">{{ config('site.name') }}</span></p>
+                            <p class="mb-0 text-center"><script>document.write(new Date().getFullYear());</script> &copy;   All Rights Reserved | <span class="text_default">Izere Mubarak</span></p>
                         </div>
                         <div class="col-md-6">
                             <ul class="list_none footer_link text-center text-md-right">

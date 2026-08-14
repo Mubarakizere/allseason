@@ -9,12 +9,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE `users` MODIFY `role` ENUM('admin', 'global_admin', 'customer') NOT NULL DEFAULT 'customer'");
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', ['admin', 'global_admin', 'customer'])->default('customer')->change();
+        });
     }
 
     public function down(): void
     {
-        // rollback ENUM without customer
-        DB::statement("ALTER TABLE `users` MODIFY `role` ENUM('admin', 'global_admin') NOT NULL DEFAULT 'admin'");
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', ['admin', 'global_admin'])->default('admin')->change();
+        });
     }
 };

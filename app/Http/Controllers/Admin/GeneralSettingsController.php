@@ -266,11 +266,13 @@ public function deleteWorkingHour($id)
         $request->validate([
             'price_per_mile' => 'required|numeric',
             'distance_limit_in_miles' => 'required|integer',
+            'notification_emails' => 'nullable|string',
         ]);
 
         $settings = OrderSettings::firstOrNew();
         $settings->price_per_mile = $request->input('price_per_mile');
         $settings->distance_limit_in_miles = $request->input('distance_limit_in_miles');
+        $settings->notification_emails = $request->input('notification_emails');
         $settings->save();
 
         return redirect()->back()->with('success', 'Order Settings updated successfully!');

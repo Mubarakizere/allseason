@@ -16,11 +16,11 @@ class BlogRequest extends FormRequest
         $rules = [
             'name' => 'required|string|max:255',
             'content' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ];
 
         if ($this->isMethod('post')) {
-            $rules['image'] = 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048';
+            $rules['image'] = 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048';
         }
 
         return $rules;
@@ -33,7 +33,7 @@ class BlogRequest extends FormRequest
             'content.required' => 'The content field is required.',
             'image.required' => 'The image field is required for new posts.',
             'image.image' => 'The image must be a valid image file.',
-            'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif, svg.',
+            'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif, svg, webp.',
             'image.max' => 'The image may not be greater than 2048 kilobytes.',
         ];
     }

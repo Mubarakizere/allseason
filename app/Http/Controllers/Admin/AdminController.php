@@ -33,22 +33,42 @@ class AdminController extends Controller
     {
         $currentYear = now()->year;
     
+        $isSqlite = \DB::connection()->getDriverName() === 'sqlite';
+        $monthQuery = $isSqlite ? "strftime('%m', created_at)" : "MONTH(created_at)";
+        
         $salesData = \DB::table('orders')
-            ->selectRaw('MONTHNAME(created_at) as month, COUNT(*) as total_sales')
-            ->whereYear('created_at', $currentYear)  
-            ->groupByRaw('MONTH(created_at), MONTHNAME(created_at)')
-            ->orderByRaw('MONTH(created_at)')
-            ->pluck('total_sales', 'month');
+            ->selectRaw("{$monthQuery} as month_num, SUM(total_price) as total_sales")
+            ->whereYear('created_at', $currentYear)
+            ->where('status', 'completed')
+            ->groupBy('month_num')
+            ->pluck('total_sales', 'month_num');
     
         $months = [
-            'January', 'February', 'March', 'April', 'May', 'June', 
-            'July', 'August', 'September', 'October', 'November', 'December'
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 
+            7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
         ];
-        $formattedSalesData = collect($months)->mapWithKeys(function ($month) use ($salesData) {
-            return [$month => $salesData->get($month, 0)];
+        
+        $formattedSalesData = collect($months)->mapWithKeys(function ($monthName, $monthNum) use ($salesData) {
+            // Match int (MySQL) or padded string (SQLite)
+            $sales = $salesData->get($monthNum, 0) ?: $salesData->get(sprintf('%02d', $monthNum), 0);
+            return [$monthName => $sales];
         });
+
+        // Sales Today
+        $salesToday = Order::whereDate('created_at', now()->today())
+            ->where('status', 'completed')
+            ->sum('total_price');
+
+        // Active Room Bookings (pending or confirmed)
+        $activeRoomBookings = \App\Models\RoomBooking::whereIn('status', ['pending', 'confirmed'])->count();
+
+        // Active Venue Bookings (pending or confirmed)
+        $activeVenueBookings = \App\Models\VenueBooking::whereIn('status', ['pending', 'confirmed'])->count();
+
+        // Total Customers
+        $totalCustomers = \App\Models\User::where('role', 'customer')->count();
     
-        return view('admin.dashboard', compact('formattedSalesData'));
+        return view('admin.dashboard', compact('formattedSalesData', 'salesToday', 'activeRoomBookings', 'activeVenueBookings', 'totalCustomers'));
     }
     
 

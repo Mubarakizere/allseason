@@ -13,14 +13,19 @@ class CreateUserRequest extends FormRequest
 
     public function rules()
     {
-        return [
+        $rules = [
             'first_name' => 'required|string|max:255',   
             'middle_name' => 'nullable|string|max:255', 
             'last_name' => 'required|string|max:255',    
             'email' => 'required|email|unique:users,email',  
-            'role' => 'required|in:admin,global_admin,customer',  
-            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:admin,global_admin,customer,sales',  
         ];
+
+        if ($this->role === 'customer') {
+            $rules['password'] = 'required|string|min:8|confirmed';
+        }
+
+        return $rules;
     }
 
     public function messages()
@@ -42,7 +47,7 @@ class CreateUserRequest extends FormRequest
             'email.unique' => 'This email has already been taken.',
             
             'role.required' => 'The role field is required.',
-            'role.in' => 'The role must be either admin, global_admin, or customer.',
+            'role.in' => 'The role must be either admin, global_admin, customer, or sales.',
             'password.required' => 'The password field is required.',
             'password.string' => 'Please enter a valid password using letters, numbers, or symbols.',
             'password.min' => 'The password must be at least 8 characters.',

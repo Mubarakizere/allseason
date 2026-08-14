@@ -18,6 +18,7 @@ class MenuRequest extends FormRequest
             'description' => 'required',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
+            'stock_item_id' => 'nullable|exists:stock_items,id',
         ];
 
         if ($this->isMethod('post')) {

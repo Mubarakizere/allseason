@@ -37,6 +37,7 @@
             let description = $(this).data('description');
             let price = $(this).data('price');
             let category_id = $(this).data('category_id');
+            let stock_item_id = $(this).data('stock_item_id');
             
             let actionUrl = "{{ route('admin.menus.update', ':id') }}".replace(':id', id);
 
@@ -44,6 +45,7 @@
             $('#editDescription').val(description);
             $('#editPrice').val(price);
             $('#editCategory').val(category_id);
+            $('#editStockItem').val(stock_item_id);
             $('#editForm').attr('action', actionUrl);
         });
 
@@ -126,6 +128,7 @@
                                                         data-description="{{ $menu->description }}"
                                                         data-price="{{ $menu->price }}"
                                                         data-category_id="{{ $menu->category_id }}"
+                                                        data-stock_item_id="{{ $menu->recipes->first()->stock_item_id ?? '' }}"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#editModal">
                                                         <i class="fa fa-edit" aria-hidden="true"></i>
@@ -211,6 +214,18 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="stock_item_id" class="form-label">Linked Stock Item (Optional - For Bar Drinks)</label>
+                        <select name="stock_item_id" class="form-control" id="stock_item_id">
+                            <option value="">None</option>
+                            @if(isset($stockItems))
+                                @foreach ($stockItems as $stockItem)
+                                    <option value="{{ $stockItem->id }}">{{ $stockItem->name }} (In Stock: {{ $stockItem->quantity }} {{ $stockItem->unit }})</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small class="text-muted">If linked, 1 unit of this stock will be deducted when this menu item is sold.</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -259,6 +274,18 @@
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStockItem" class="form-label">Linked Stock Item (Optional - For Bar Drinks)</label>
+                        <select name="stock_item_id" class="form-control" id="editStockItem">
+                            <option value="">None</option>
+                            @if(isset($stockItems))
+                                @foreach ($stockItems as $stockItem)
+                                    <option value="{{ $stockItem->id }}">{{ $stockItem->name }} (In Stock: {{ $stockItem->quantity }} {{ $stockItem->unit }})</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small class="text-muted">If linked, 1 unit of this stock will be deducted when this menu item is sold.</small>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -15,4 +15,9 @@ class Menu extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function recipes()
+    {
+        return $this->hasMany(MenuRecipe::class);
+    }
 }

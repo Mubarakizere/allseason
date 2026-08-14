@@ -224,6 +224,7 @@
                         <select name="role" class="form-control form-control-sm" required>
                             <option value="admin">Admin</option>
                             <option value="global_admin">Global Admin</option>
+                            <option value="sales">Sales (POS)</option>
                         </select>
                     </div>
                     
@@ -273,6 +274,7 @@
                         <select name="role" id="editRole" class="form-control form-control-sm form-select" required>
                             <option value="admin">Admin</option>
                             <option value="global_admin">Global Admin</option>
+                            <option value="sales">Sales (POS)</option>
                         </select>
                     </div>
                     <div class="form-check form-check-flat form-check-primary" id="banCheckboxDiv">

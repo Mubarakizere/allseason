@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\CartController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\VenueController;
 use App\Http\Controllers\TableBookingController;
 use App\Http\Controllers\MainSite\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -23,7 +24,19 @@ use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
 use App\Http\Controllers\Admin\GeneralSettingsController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
+use App\Http\Controllers\Admin\VenueController as AdminVenueController;
+use App\Http\Controllers\Admin\VenuePackageController;
+use App\Http\Controllers\Admin\VenueBookingController;
 use App\Http\Controllers\Admin\TableBookingController as AdminTableBookingController;
+use App\Http\Controllers\FrontRoomController;
+use App\Http\Controllers\Admin\RoomController as AdminRoomController;
+use App\Http\Controllers\Admin\RoomBookingController as AdminRoomBookingController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\StockCategoryController;
+use App\Http\Controllers\Admin\StockItemController;
+use App\Http\Controllers\Admin\StockPurchaseController;
+use App\Http\Controllers\Admin\StockIssueController;
+use App\Http\Controllers\Admin\StockHistoryController;
 
 
 Route::get('/', [MainSiteController::class, 'home'])->name('home');
@@ -32,6 +45,25 @@ Route::post('table-booking/', [TableBookingController::class, 'bookTable'])->nam
 
 Route::get('menu/', [MainSiteController::class, 'menu'])->name('menu');
 Route::get('menu-item/{id}', [MainSiteController::class, 'menuItem'])->name('menu.item');
+
+// Venues & Bookings
+Route::get('venues', [VenueController::class, 'index'])->name('venues.index');
+Route::get('venues/{id}', [VenueController::class, 'show'])->name('venues.show');
+Route::get('venues-check-availability', [VenueController::class, 'checkAvailability'])->name('venues.checkAvailability');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('venues/checkout', [VenueController::class, 'checkout'])->name('venues.checkout');
+    Route::get('venues-success', [VenueController::class, 'success'])->name('venues.success');
+    Route::get('venues-cancel', [VenueController::class, 'cancel'])->name('venues.cancel');
+});
+
+// Rooms & Bookings
+Route::get('rooms', [FrontRoomController::class, 'index'])->name('rooms.index');
+Route::get('rooms/{id}', [FrontRoomController::class, 'show'])->name('rooms.show');
+Route::get('rooms-check-availability', [FrontRoomController::class, 'checkAvailability'])->name('rooms.checkAvailability');
+Route::post('rooms/checkout', [FrontRoomController::class, 'checkout'])->name('rooms.checkout')->middleware('auth');
+Route::get('rooms-success', [FrontRoomController::class, 'success'])->name('rooms.success')->middleware('auth');
+Route::get('rooms-cancel', [FrontRoomController::class, 'cancel'])->name('rooms.cancel')->middleware('auth');
 
 // Customer Cart 
 Route::get('cart/', [MainSiteController::class, 'cart'])->name('customer.cart');
@@ -49,6 +81,7 @@ Route::get('payment/', [PaymentController::class, 'payment'])->name('payment');
 Route::get('payment-success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
 Route::get('payment-cancel', [PaymentController::class, 'paymentCancel'])->name('payment.cancel');
 Route::post('stripe/webhook', [PaymentController::class, 'handleStripeWebhook']);
+Route::post('weflexfy/webhook', [PaymentController::class, 'handleWeFlexfyWebhook'])->name('weflexfy.webhook');
 
   
 
@@ -176,9 +209,14 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
     Route::get('cart/view', [CartController::class, 'getCart'])->name('admin.cart.view');
     Route::post('cart/clear', [CartController::class, 'clearCart'])->name('admin.cart.clear');
     Route::post('cart/update', [CartController::class, 'updateCartQuantity'])->name('admin.cart.update');
+    Route::post('cart/update-note', [CartController::class, 'updateCartItemNote'])->name('admin.cart.update-note');
 
  
     //Admin Order routes
+    Route::get('orders/unprinted', [OrderController::class, 'unprinted'])->name('admin.orders.unprinted');
+    Route::get('orders/table/{id}', [OrderController::class, 'getOpenOrder'])->name('admin.orders.table');
+    Route::get('orders/{id}/receipt', [OrderController::class, 'receipt'])->name('admin.orders.receipt');
+    Route::post('orders/{id}/mark-printed', [OrderController::class, 'markPrinted'])->name('admin.orders.mark-printed');
     Route::get('orders/{filter?}', [OrderController::class, 'index'])->name('admin.orders.index');
     Route::get('order/{id}', [OrderController::class, 'show'])->name('admin.order.show');
     Route::post('order/create', [OrderController::class, 'createOrder'])->name('admin.order.store');
@@ -202,12 +240,62 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
         Route::post('category/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
         Route::post('category/delete/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
 
+        // Admin Waiters
+        Route::get('waiters', [\App\Http\Controllers\Admin\WaiterController::class, 'index'])->name('admin.waiters.index');
+        Route::post('waiters/store', [\App\Http\Controllers\Admin\WaiterController::class, 'store'])->name('admin.waiters.store');
+        Route::post('waiters/update/{id}', [\App\Http\Controllers\Admin\WaiterController::class, 'update'])->name('admin.waiters.update');
+        Route::post('waiters/delete/{id}', [\App\Http\Controllers\Admin\WaiterController::class, 'destroy'])->name('admin.waiters.destroy');
+
+        // Admin Tables
+        Route::get('restaurant-tables', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'index'])->name('admin.restaurant-tables.index');
+        Route::post('restaurant-tables/store', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'store'])->name('admin.restaurant-tables.store');
+        Route::post('restaurant-tables/update/{id}', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'update'])->name('admin.restaurant-tables.update');
+        Route::post('restaurant-tables/delete/{id}', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'destroy'])->name('admin.restaurant-tables.destroy');
+
         //Admin Settings Menu
         Route::get('menu', [MenuController::class, 'index'])->name('admin.menus.index');
         Route::post('menu', [MenuController::class, 'store'])->name('admin.menus.store');
         Route::patch('menu/{id}', [MenuController::class, 'update'])->name('admin.menus.update');
         Route::delete('menu/{id}', [MenuController::class, 'destroy'])->name('admin.menus.destroy');
+        
+        // Admin Venues
+        Route::get('venues', [AdminVenueController::class, 'index'])->name('admin.venues.index');
+        Route::post('/venues', [AdminVenueController::class, 'store'])->name('admin.venues.store');
+        Route::put('/venues/{id}', [AdminVenueController::class, 'update'])->name('admin.venues.update');
+        Route::delete('/venues/{id}', [AdminVenueController::class, 'destroy'])->name('admin.venues.destroy');
+        Route::delete('/venues/image/{id}', [AdminVenueController::class, 'deleteImage'])->name('admin.venues.delete-image');
+
+        Route::get('/venue-packages', [VenuePackageController::class, 'index'])->name('admin.venue-packages.index');
+        Route::post('/venue-packages', [VenuePackageController::class, 'store'])->name('admin.venue-packages.store');
+        Route::put('/venue-packages/{id}', [VenuePackageController::class, 'update'])->name('admin.venue-packages.update');
+        Route::delete('/venue-packages/{id}', [VenuePackageController::class, 'destroy'])->name('admin.venue-packages.destroy');
+        Route::delete('/venue-packages/image/{id}', [VenuePackageController::class, 'deleteImage'])->name('admin.venue-packages.delete-image');
+
+        // Admin Venue Bookings
+        Route::get('venue-bookings', [VenueBookingController::class, 'index'])->name('admin.venue-bookings.index');
+        Route::put('venue-bookings/{id}', [VenueBookingController::class, 'update'])->name('admin.venue-bookings.update');
+        Route::delete('venue-bookings/{id}', [VenueBookingController::class, 'destroy'])->name('admin.venue-bookings.destroy');
     
+        // Admin Rooms
+        Route::get('rooms', [AdminRoomController::class, 'index'])->name('admin.rooms.index');
+        Route::post('/rooms', [AdminRoomController::class, 'store'])->name('admin.rooms.store');
+        Route::put('/rooms/{id}', [AdminRoomController::class, 'update'])->name('admin.rooms.update');
+        Route::delete('/rooms/{id}', [AdminRoomController::class, 'destroy'])->name('admin.rooms.destroy');
+        Route::delete('/rooms/image/{id}', [AdminRoomController::class, 'deleteImage'])->name('admin.rooms.delete-image');
+
+        // Admin Room Bookings
+        Route::get('room-bookings', [AdminRoomBookingController::class, 'index'])->name('admin.room-bookings.index');
+        Route::put('room-bookings/{id}', [AdminRoomBookingController::class, 'update'])->name('admin.room-bookings.update');
+        Route::delete('room-bookings/{id}', [AdminRoomBookingController::class, 'destroy'])->name('admin.room-bookings.destroy');
+
+        // Stock Management
+        Route::resource('suppliers', SupplierController::class, ['as' => 'admin'])->except(['create', 'show', 'edit']);
+        Route::resource('stock-categories', StockCategoryController::class, ['as' => 'admin'])->except(['create', 'show', 'edit']);
+        Route::resource('stock-items', StockItemController::class, ['as' => 'admin'])->except(['create', 'show', 'edit']);
+        Route::resource('stock-purchases', StockPurchaseController::class, ['as' => 'admin'])->only(['index', 'store', 'destroy']);
+        Route::resource('stock-issues', StockIssueController::class, ['as' => 'admin'])->only(['index', 'store', 'destroy']);
+        Route::get('stock-history', [StockHistoryController::class, 'index'])->name('admin.stock-history.index');
+
         Route::get('general-settings', [GeneralSettingsController::class, 'index'])->name('admin.general-settings');
 
         
