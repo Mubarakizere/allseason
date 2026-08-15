@@ -36,6 +36,8 @@ class MenuController extends Controller
         
         if ($request->hasFile('image')) {
             $validated['image'] = $this->handleImageUpload($validated['image'], "menus");
+        } else {
+            $validated['image'] = '';
         }
     
         $menu = Menu::create($validated);
@@ -57,15 +59,25 @@ class MenuController extends Controller
         $menu = Menu::findOrFail($id);
         $validated = $request->validated();
     
-        if ($request->hasFile('image')) {
+        if ($request->boolean('remove_image')) {
+            if ($menu->image) {
+                $imagePath = storage_path('app/public/' . ltrim($menu->image, '/'));
+                if (file_exists($imagePath)) {
+                    @unlink($imagePath);
+                }
+            }
+            $validated['image'] = '';
+        } elseif ($request->hasFile('image')) {
             // Delete old image
-            $imagePath = storage_path('app/public/' . ltrim($menu->image, '/'));
-            if (file_exists($imagePath)) {
-                unlink($imagePath);
+            if ($menu->image) {
+                $imagePath = storage_path('app/public/' . ltrim($menu->image, '/'));
+                if (file_exists($imagePath)) {
+                    @unlink($imagePath);
+                }
             }
     
             // Handle new image upload
-            $validated['image'] = $this->handleImageUpload($validated['image'],"menus");
+            $validated['image'] = $this->handleImageUpload($validated['image'], "menus");
         }
     
         $menu->update($validated);

@@ -52,7 +52,12 @@ class AuthController extends Controller
           
 
              if ($user->status == 1) {
+                 $existingCart = session()->get('customer', []);
                  auth()->login($user);
+                 $request->session()->regenerate();
+                 if (!empty($existingCart)) {
+                     session()->put('customer', $existingCart);
+                 }
                  return redirect()->route($dashboardRoute);
              } else {
                  session(['user_email' => $user->email, 'user_name' => $user->first_name]);
@@ -222,7 +227,13 @@ class AuthController extends Controller
       // Handle logout
      public function logout()
      {
+         $existingCart = session()->get('customer', []);
          Auth::logout();
+         session()->invalidate();
+         session()->regenerateToken();
+         if (!empty($existingCart)) {
+             session()->put('customer', $existingCart);
+         }
          return redirect()->route('auth.login')->with('success', 'Logged out successfully.');
      }
 }

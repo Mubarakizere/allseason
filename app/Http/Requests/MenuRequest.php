@@ -19,15 +19,9 @@ class MenuRequest extends FormRequest
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'stock_item_id' => 'nullable|exists:stock_items,id',
+            'image' => 'nullable|image|max:2048',
+            'remove_image' => 'nullable|boolean',
         ];
-
-        if ($this->isMethod('post')) {
-            $rules['image'] = 'required|image|max:2048';
-        }
-
-        if ($this->isMethod('put') || $this->isMethod('patch')) {
-            $rules['image'] = 'nullable|image|max:2048';
-        }
 
         return $rules;
     }

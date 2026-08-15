@@ -38,6 +38,8 @@
             let price = $(this).data('price');
             let category_id = $(this).data('category_id');
             let stock_item_id = $(this).data('stock_item_id');
+            let image_url = $(this).data('image');
+            let has_image = $(this).data('has_image');
             
             let actionUrl = "{{ route('admin.menus.update', ':id') }}".replace(':id', id);
 
@@ -47,6 +49,14 @@
             $('#editCategory').val(category_id);
             $('#editStockItem').val(stock_item_id);
             $('#editForm').attr('action', actionUrl);
+
+            $('#editRemoveImage').prop('checked', false);
+            if (has_image == 1 || has_image == '1') {
+                $('#editImagePreview').attr('src', image_url);
+                $('#currentImageWrapper').removeClass('d-none');
+            } else {
+                $('#currentImageWrapper').addClass('d-none');
+            }
         });
 
         // Delete Modal
@@ -117,7 +127,14 @@
                                         <tr>
                                             <td>
                                                 <!-- Trigger for Lightbox Modal -->
-                                                <img src="{{ asset('storage/' . $menu->image) }}" alt="Menu Image" width="50" class="img-thumbnail trigger-lightbox" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="{{ asset('storage/' . $menu->image) }}">  {{ $menu->name }}
+                                                <div class="d-flex align-items-center">
+                                                    @if($menu->has_real_image)
+                                                        <img src="{{ $menu->image_url }}" alt="{{ $menu->name }}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px; margin-right: 10px; cursor: pointer;" class="img-thumbnail trigger-lightbox" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="{{ $menu->image_url }}">
+                                                    @else
+                                                        <span class="badge bg-light text-muted border py-2 px-2 me-2" style="font-size: 11px; border-radius: 6px;"><i class="fa fa-image me-1"></i> No Image</span>
+                                                    @endif
+                                                    <span class="font-weight-bold">{{ $menu->name }}</span>
+                                                </div>
                                             </td>
                                             <td>{{ $menu->description }}</td>
                                             <td>{!! $site_settings->currency_symbol !!}{{ $menu->price }}</td>
@@ -129,6 +146,8 @@
                                                         data-price="{{ $menu->price }}"
                                                         data-category_id="{{ $menu->category_id }}"
                                                         data-stock_item_id="{{ $menu->recipes->first()->stock_item_id ?? '' }}"
+                                                        data-image="{{ $menu->image_url ?? '' }}"
+                                                        data-has_image="{{ $menu->has_real_image ? '1' : '0' }}"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#editModal">
                                                         <i class="fa fa-edit" aria-hidden="true"></i>
@@ -203,8 +222,8 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="image" class="form-label">Image</label>
-                        <input type="file" name="image" class="form-control" id="image" required>
+                        <label for="image" class="form-label">Image (Optional)</label>
+                        <input type="file" name="image" class="form-control" id="image">
                     </div>
                     <div class="mb-3">
                         <label for="category_id" class="form-label">Category</label>
@@ -260,12 +279,27 @@
                         <label for="editPrice" class="form-label">Price ({!! $site_settings->currency_symbol !!})</label>
                         <input type="number" step="0.01" name="price" class="form-control" id="editPrice" required>
                     </div>
-                    <div class="alert alert-danger" role="alert">
-                        Recommended image size is <strong>500 x 400</strong>. Uploaded images will be cropped to Recommended size.
+                    <div class="alert alert-info py-2" role="alert">
+                        <small>Recommended image size is <strong>500 x 400</strong>.</small>
                     </div>
                     <div class="mb-3">
-                        <label for="editImage" class="form-label">Image</label>
+                        <label for="editImage" class="form-label d-block">Image</label>
+                        <div id="currentImageWrapper" class="mb-2 d-none p-2 border rounded bg-light">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <img id="editImagePreview" src="" alt="Current Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;" class="border me-2">
+                                    <span class="small text-muted font-weight-bold">Current Picture</span>
+                                </div>
+                                <div class="form-check text-danger mb-0">
+                                    <input class="form-check-input" type="checkbox" name="remove_image" id="editRemoveImage" value="1">
+                                    <label class="form-check-label text-danger font-weight-bold small" for="editRemoveImage" style="cursor:pointer;">
+                                        <i class="fa fa-trash me-1"></i> Remove Picture
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                         <input type="file" name="image" class="form-control" id="editImage">
+                        <small class="text-muted">Upload a new image to replace the current picture.</small>
                     </div>
                     <div class="mb-3">
                         <label for="editCategory" class="form-label">Category</label>

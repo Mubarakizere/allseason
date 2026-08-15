@@ -1,17 +1,7 @@
 <?php
 
 return [
-    'provider' => env('PAYMENT_PROVIDER', 'stripe'),
-
-    'stripe' => [
-        'secret' => env('STRIPE_SECRET'),
-        'public' => env('STRIPE_PUBLIC'),
-    ],
-
-    'paystack' => [
-        'secret' => env('PAYSTACK_SECRET'),
-        'public' => env('PAYSTACK_PUBLIC'),
-    ],
+    'provider' => env('PAYMENT_PROVIDER', 'weflexfy'),
 
     'weflexfy' => [
         'base_url' => env('WEFLEXFY_BASE_URL', 'https://api.weflexfy.com'),

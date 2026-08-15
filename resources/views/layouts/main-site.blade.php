@@ -10,6 +10,8 @@
 <meta name="description" content="Best restaurant experience, don't miss out on {{ config('site.name') }}.">
 <meta name="keywords" content="African food, Fast Food, cafe, bar, BBQ, restaurant, sushi, steakhouse, pizza, Mexican Food, menu, meat, Breakfast, Lunch, Dinner, Delicious, Tasty, Snack, Wine, Cola">
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <!-- SITE TITLE -->
 <title>{{ config('site.name') }} - @yield('title')</title>
 <!-- Favicon Icon -->
@@ -17,6 +19,12 @@
 
 @stack('styles')
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ <script>
+     const csrfToken = "{{ csrf_token() }}";
+     const addToCartUrl = "{{ route('customer.cart.add') }}";
+     const removeFromCartUrl = "{{ route('customer.cart.remove') }}";
+     const updateCartUrl = "{{ route('customer.cart.update') }}";
+ </script>
  
 </head>
 

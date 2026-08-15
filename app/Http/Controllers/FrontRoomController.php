@@ -8,8 +8,6 @@ use App\Models\SiteSetting;
 use App\Models\OrderSettings;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Stripe\Stripe;
-use Stripe\Checkout\Session as StripeSession;
 use App\Http\Controllers\Traits\CartTrait;
 use App\Http\Controllers\Traits\MainSiteViewSharedDataTrait;
 use Illuminate\Support\Facades\Mail;
@@ -105,7 +103,6 @@ class FrontRoomController extends Controller
             'deposit_amount' => $deposit_amount,
             'payment_status' => 'unpaid',
             'status' => 'pending',
-            'stripe_session_id' => null,
         ]);
 
         $weFlexfyService = app(WeFlexfyService::class);
@@ -136,7 +133,6 @@ class FrontRoomController extends Controller
         }
 
         $booking->weflexfy_request_token = $response['requestToken'];
-        $booking->stripe_session_id = $response['requestToken'];
         $booking->save();
 
         $siteSettings = SiteSetting::latest()->first();
@@ -160,7 +156,6 @@ class FrontRoomController extends Controller
 
         try {
             $booking = RoomBooking::where('weflexfy_request_token', $session_id)
-                ->orWhere('stripe_session_id', $session_id)
                 ->firstOrFail();
 
             if ($booking->payment_status === 'unpaid') {

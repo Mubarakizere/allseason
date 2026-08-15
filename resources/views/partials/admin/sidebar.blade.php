@@ -159,6 +159,9 @@
             <div class="collapse" id="site-settings" style="">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.banners.index') }}">Home Banners</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('admin.menus.index') }}">Menu</a>
                     </li>
                     <li class="nav-item">

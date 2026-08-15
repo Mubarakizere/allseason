@@ -1,208 +1,250 @@
 
 @extends('layouts.main-site')
 
+@section('title', 'Create Account')
+
 @push('styles')
-    
-    
-    <!-- Animation CSS -->
-    <link rel="stylesheet" href="/assets/css/animate.css">	
     <!-- Latest Bootstrap min CSS -->
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css?family=Kaushan+Script&amp;display=swap" rel="stylesheet"> 
-    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:100,100i,300,300i,400,400i,600,600i,700,700i&amp;display=swap" rel="stylesheet"> 
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&amp;display=swap" rel="stylesheet"> 
     <!-- Icon Font CSS -->
     <link rel="stylesheet" href="/assets/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/ionicons.min.css">
     <link rel="stylesheet" href="/assets/css/themify-icons.css">
     <link rel="stylesheet" href="/assets/css/linearicons.css">
-    <link rel="stylesheet" href="/assets/css/flaticon.css">
-    <!--- owl carousel CSS-->
-    <link rel="stylesheet" href="/assets/owlcarousel/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="/assets/owlcarousel/css/owl.theme.css">
-    <link rel="stylesheet" href="/assets/owlcarousel/css/owl.theme.default.min.css">
-    <!-- Slick CSS -->
-    <link rel="stylesheet" href="/assets/css/slick.css">
-    <link rel="stylesheet" href="/assets/css/slick-theme.css">
-    <!-- Magnific Popup CSS -->
-    <link rel="stylesheet" href="/assets/css/magnific-popup.css">
-    <!-- DatePicker CSS -->
-    <link href="/assets/css/datepicker.min.css" rel="stylesheet">
-    <!-- TimePicker CSS -->
-    <link href="/assets/css/mdtimepicker.min.css" rel="stylesheet">
     <!-- Style CSS -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/responsive.css">
     <link id="layoutstyle" rel="stylesheet" href="/assets/color/theme-red.css">
+
+<style>
+    header.header_wrap, footer, .footer_top, .bottom_footer, #preloader, .breadcrumb_section {
+        display: none !important;
+    }
+    html, body {
+        overflow-x: hidden !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: #f8f9fa !important;
+        color: #333333;
+        min-height: 100vh;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        overflow-x: hidden !important;
+        max-width: 100% !important;
+    }
+    .auth-container, .auth-container.row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        min-height: 100vh;
+    }
+    .auth-bg-side {
+        background: linear-gradient(135deg, rgba(20, 20, 20, 0.75) 0%, rgba(255, 50, 77, 0.55) 100%), url('/assets/images/banner2.jpg') center/cover no-repeat;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 60px;
+    }
+    .auth-form-side {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffff;
+        padding: 40px 20px;
+    }
+    .auth-card {
+        width: 100%;
+        max-width: 520px;
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef0f2;
+    }
+    .form-control-light {
+        background: #f8f9fa !important;
+        border: 1px solid #dde1e5 !important;
+        color: #222222 !important;
+        border-radius: 8px !important;
+        height: 46px !important;
+        padding-left: 14px !important;
+        font-size: 14px !important;
+    }
+    .form-control-light:focus {
+        background: #ffffff !important;
+        border-color: #FF324D !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 50, 77, 0.2) !important;
+    }
+    .btn-brand {
+        background: #FF324D !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        height: 50px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(255, 50, 77, 0.35);
+    }
+    .btn-brand:hover {
+        background: #e0263f !important;
+        box-shadow: 0 8px 25px rgba(255, 50, 77, 0.45);
+        transform: translateY(-2px);
+    }
+    .input-group-text-light {
+        background: #f8f9fa !important;
+        border: 1px solid #dde1e5 !important;
+        border-left: none !important;
+        color: #666666 !important;
+        border-top-right-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+    }
+</style>
 @endpush
 
 @push('scripts')
- 
-    <!-- Latest jQuery --> 
-    <script src="/assets/js/jquery-1.12.4.min.js"></script> 
-    <!-- Latest compiled and minified Bootstrap --> 
-    <script src="/assets/bootstrap/js/bootstrap.min.js"></script> 
-    <!-- owl-carousel min js  --> 
-    <script src="/assets/owlcarousel/js/owl.carousel.min.js"></script> 
-    <!-- magnific-popup min js  --> 
-    <script src="/assets/js/magnific-popup.min.js"></script> 
-    <!-- waypoints min js  --> 
-    <script src="/assets/js/waypoints.min.js"></script> 
-    <!-- parallax js  --> 
-    <script src="/assets/js/parallax.js"></script> 
-    <!-- countdown js  --> 
-    <script src="/assets/js/jquery.countdown.min.js"></script> 
-    <!-- jquery.countTo js  -->
-    <script src="/assets/js/jquery.countTo.js"></script>
-    <!-- imagesloaded js --> 
-    <script src="/assets/js/imagesloaded.pkgd.min.js"></script>
-    <!-- isotope min js --> 
-    <script src="/assets/js/isotope.min.js"></script>
-    <!-- jquery.appear js  -->
-    <script src="/assets/js/jquery.appear.js"></script>
-    <!-- jquery.dd.min js -->
-    <script src="/assets/js/jquery.dd.min.js"></script>
-    <!-- slick js -->
-    <script src="/assets/js/slick.min.js"></script>
-    <!-- DatePicker js -->
-    <script src="/assets/js/datepicker.min.js"></script>
-    <!-- TimePicker js -->
-    <script src="/assets/js/mdtimepicker.min.js"></script>
-    <!-- scripts js --> 
-    <script src="/assets/js/scripts.js"></script>
-
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('.toggle-password').on('click', function() {
-                const targetInput = $($(this).data('target'));
-                const type = targetInput.attr('type') === 'password' ? 'text' : 'password';
-                targetInput.attr('type', type);
-                $(this).toggleClass('fa-eye fa-eye-slash');
-            });
+<script>
+    $(document).ready(function() {
+        $('.toggle-password').on('click', function() {
+            const targetInput = $($(this).data('target'));
+            const type = targetInput.attr('type') === 'password' ? 'text' : 'password';
+            targetInput.attr('type', type);
+            $(this).toggleClass('fa-eye fa-eye-slash');
         });
-    </script>
+    });
+</script>
 @endpush
 
-
-@section('title', 'Create Account')
-
-
 @section('header')
-    <!-- START HEADER -->
-        <header class="header_wrap fixed-top header_with_topbar light_skin main_menu_uppercase">
-        <div class="container">
-            @include('partials.nav')
-        </div>
-    </header>
-    <!-- END HEADER -->
 @endsection
 
-
 @section('content')
-
-<!-- START SECTION BREADCRUMB -->
-<div class="breadcrumb_section background_bg overlay_bg_50 page_title_light" data-img-src="/assets/images/checkout_bg.jpg">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="page-title">
-                    <h1>Create Account</h1>
-                </div>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Create Account</li>
-                </ol>
+<div class="container-fluid p-0">
+    <div class="row g-0 auth-container">
+        <!-- LEFT SIDE: Hero Background Image -->
+        <div class="col-lg-5 d-none d-lg-flex auth-bg-side">
+            <div>
+                <a href="{{ route('home') }}" class="d-inline-block text-decoration-none">
+                    <h3 class="font-weight-bold text-white mb-0">All The Season Garden</h3>
+                </a>
             </div>
-        </div>
-    </div>
-</div>
-<!-- END SECTION BREADCRUMB -->
-
-<!-- START SECTION SHOP -->
-<div class="section">
-    <div class="container">
- 
-        <form method="post" action="{{ route('customer.account.store') }}">
-            @csrf
-            <div class="row justify-content-center">
-                <div class="col-12 col-lg-6 mx-auto">
-                    <div class="order_review">
-
-                         @include('partials.message-bag')
-                         
-                        <div class="row">
-
-                            <!-- First Name -->
-                            <div class="form-group col-md-6">
-                                <label for="first_name">First Name</label>
-                                <input id="first_name" class="form-control" required type="text" name="first_name" value="{{ old('first_name') }}">
-                            </div>
-                            <!-- Last Name -->
-                            <div class="form-group col-md-6">
-                                <label for="last_name">Last Name</label>
-                                <input id="last_name" class="form-control" required type="text" name="last_name" value="{{ old('last_name') }}">
-                            </div>
-
-                            <!-- Email -->
-                            <div class="form-group col-md-12">
-                                <label for="email">Email Address</label>
-                                <input id="email" class="form-control" required type="email" name="email" value="{{ old('email') }}">
-                            </div>
-
-                            <!-- Phone Number -->
-                            <div class="form-group col-md-12">
-                                <label for="phone_number">Phone Number</label>
-                                <input id="phone_number" class="form-control" required type="tel" name="phone_number" value="{{ old('phone_number') }}">
-                            </div>
-
-                            <!-- Password -->
-                            <div class="form-group col-md-12 position-relative">
-                                <label for="password">Password</label>
-                                <div class="input-group">
-                                    <input id="password" class="form-control" required type="password" name="password">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-eye toggle-password" data-target="#password" style="cursor:pointer;"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Repeat Password -->
-                            <div class="form-group col-md-12 position-relative">
-                                <label for="password_confirmation">Confirm Password</label>
-                                <div class="input-group">
-                                    <input id="password_confirmation" class="form-control" required type="password" name="password_confirmation">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-eye toggle-password" data-target="#password_confirmation" style="cursor:pointer;"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Submission -->
-                            <div class="form-group mb-0 mt-2 col-md-12">
-                                <button type="submit" class="btn btn-default btn-block">Create Account</button>
-                            </div>
-
-                            <!-- Login Link -->
-                            <div class="form-group mb-0 mt-2 col-md-12">
-                                <p>If you have an account? <a href="{{ route('auth.login') }}">Login here</a></p>
-                            </div>
-
-                        </div>
+            <div>
+                <span class="badge bg-danger px-3 py-2 rounded-pill mb-3" style="font-size: 12px; letter-spacing: 1px;">CREATE YOUR ACCOUNT</span>
+                <h1 class="display-6 font-weight-bold text-white mb-3">Join Us For Extraordinary Experiences</h1>
+                <p class="text-white-50 lead mb-4" style="font-size: 16px;">Sign up today to place fast food orders, reserve luxury rooms, and book unforgettable event venues.</p>
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fa fa-check-circle text-danger me-2" style="font-size: 18px;"></i>
+                        <span class="text-white">Instant Online Table & Food Ordering</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fa fa-check-circle text-danger me-2" style="font-size: 18px;"></i>
+                        <span class="text-white">Personal Customer Account Dashboard</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-check-circle text-danger me-2" style="font-size: 18px;"></i>
+                        <span class="text-white">Exclusive Discounts & Offers</span>
                     </div>
                 </div>
             </div>
-        </form>
+            <div>
+                <p class="text-white-50 mb-0 small">&copy; {{ date('Y') }} All The Season Garden. All Rights Reserved.</p>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Form Container (Light Theme) -->
+        <div class="col-lg-7 col-12 auth-form-side">
+            <div class="mb-4 text-center d-lg-none">
+                <a href="{{ route('home') }}" class="text-decoration-none">
+                    <h4 class="font-weight-bold text-dark mb-1">All The Season Garden</h4>
+                </a>
+            </div>
+
+            <div class="mb-4 w-100 text-start" style="max-width: 520px;">
+                <a href="{{ route('home') }}" class="text-muted text-decoration-none small">
+                    <i class="fa fa-arrow-left me-1"></i> Back to Website
+                </a>
+            </div>
+
+            <div class="auth-card">
+                <h3 class="font-weight-bold text-dark mb-1">Create Account</h3>
+                <p class="text-muted small mb-4">Fill in your information to get started.</p>
+
+                @include('partials.message-bag')
+
+                <form method="post" action="{{ route('customer.account.store') }}">
+                    @csrf
+
+                    <div class="row">
+                        <!-- First Name -->
+                        <div class="form-group mb-3 col-md-6">
+                            <label for="first_name" class="text-dark small font-weight-bold mb-1">First Name</label>
+                            <input id="first_name" class="form-control form-control-light" required type="text" name="first_name" value="{{ old('first_name') }}" placeholder="John">
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="form-group mb-3 col-md-6">
+                            <label for="last_name" class="text-dark small font-weight-bold mb-1">Last Name</label>
+                            <input id="last_name" class="form-control form-control-light" required type="text" name="last_name" value="{{ old('last_name') }}" placeholder="Doe">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group mb-3">
+                        <label for="email" class="text-dark small font-weight-bold mb-1">Email Address</label>
+                        <input id="email" class="form-control form-control-light" required type="email" name="email" value="{{ old('email') }}" placeholder="name@example.com">
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="form-group mb-3">
+                        <label for="phone_number" class="text-dark small font-weight-bold mb-1">Phone Number</label>
+                        <input id="phone_number" class="form-control form-control-light" required type="tel" name="phone_number" value="{{ old('phone_number') }}" placeholder="+250 780 000 000">
+                    </div>
+
+                    <div class="row">
+                        <!-- Password -->
+                        <div class="form-group mb-3 col-md-6">
+                            <label for="password" class="text-dark small font-weight-bold mb-1">Password</label>
+                            <div class="input-group">
+                                <input id="password" class="form-control form-control-light" style="border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;" required type="password" name="password" placeholder="••••••••">
+                                <span class="input-group-text input-group-text-light">
+                                    <i class="fas fa-eye toggle-password" data-target="#password" style="cursor:pointer;"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group mb-3 col-md-6">
+                            <label for="password_confirmation" class="text-dark small font-weight-bold mb-1">Confirm Password</label>
+                            <div class="input-group">
+                                <input id="password_confirmation" class="form-control form-control-light" style="border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;" required type="password" name="password_confirmation" placeholder="••••••••">
+                                <span class="input-group-text input-group-text-light">
+                                    <i class="fas fa-eye toggle-password" data-target="#password_confirmation" style="cursor:pointer;"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submission -->
+                    <div class="form-group mb-4 mt-3">
+                        <button type="submit" class="btn btn-brand w-100">Create Account</button>
+                    </div>
+
+                    <!-- Login Link -->
+                    <p class="text-center text-muted small mb-0">
+                        Already have an account? <a href="{{ route('auth.login') }}" class="text-danger font-weight-bold text-decoration-none">Login here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
-<!-- END SECTION SHOP -->
- 
-
 @endsection

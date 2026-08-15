@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Customer;
 
-use Stripe\Stripe;
 use App\Models\Order;
 use App\Models\Address;
 use App\Models\SiteSetting;
@@ -26,8 +25,6 @@ class CheckoutController extends Controller
     use OrderNumberGeneratorTrait;
 
     protected $provider;
-    protected $stripeSecret;
-    protected $paystackSecret;
     protected $currencyCode;
 
     protected $distance_limit_in_miles;
@@ -39,9 +36,7 @@ class CheckoutController extends Controller
     {
         $this->shareMainSiteViewData();
 
-        $this->provider      = config('payments.provider');
-        $this->stripeSecret  = config('payments.stripe.secret');
-        $this->paystackSecret= config('payments.paystack.secret');  
+        $this->provider = config('payments.provider', 'weflexfy');
 
         // Get Site Settings
         $site_settings  = SiteSetting::latest()->first();
@@ -439,7 +434,7 @@ class CheckoutController extends Controller
                 'status'             => 'pending',
                 'status_online_pay'  => 'unpaid',
                 'session_id'         => null,
-                'payment_method'     => 'STRIPE',
+                'payment_method'     => 'WEFLEXFY',
                 'additional_info'    => $request->input('additional_info'),
                 'delivery_fee'       => $delivery_fee,
                 'delivery_distance'  => $distance_miles,
@@ -501,15 +496,6 @@ class CheckoutController extends Controller
 
 
 
-        if ($this->provider === 'stripe') {
-            return $this->processStripePayment($order, $line_items, $user);
-        }
-
-        if ($this->provider === 'paystack') {
-            return $this->processPaystackPayment($order, $total, $user);
-        }
-
-        // Default or provider === 'weflexfy'
         return $this->processWeFlexfyPayment($order, $total, $user);
     }
 
@@ -530,64 +516,7 @@ class CheckoutController extends Controller
 
 
 
-    private function processStripePayment($order, $line_items, $user)
-    {
-        // Mock Stripe payment for development
-        $mock_session_id = 'mock_session_' . uniqid();
-        return redirect()->route('payment.success', [
-            'session_id' => $mock_session_id,
-            'order_no'   => $order->order_no
-        ]);
 
-        /*
-        Stripe::setApiKey($this->stripeSecret);
-
-        $checkout_session = \Stripe\Checkout\Session::create([
-            'line_items' => $line_items,
-            'mode' => 'payment',
-            'customer_email' => $user->email,
-            'metadata' => [
-                'order_no' => $order->order_no,
-            ],
-            'success_url' => route('payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('payment.cancel'),
-        ]);
-
-        return redirect($checkout_session->url);
-        */
-    }
-
-
-
-    private function processPaystackPayment($order, $amount, $user)
-    {
-         $amountSmallestUnit = (int) round($amount * 100);
-
-        $response = Http::withToken($this->paystackSecret)
-            ->post('https://api.paystack.co/transaction/initialize', [
-                'email'        => $user->email,
-                'amount'       => $amountSmallestUnit,
-                'currency'     => strtoupper($this->currencyCode),
-                'metadata'     => [
-                    'order_no' => $order->order_no,
-                ],
-                'callback_url' => route('payment.success'),
-            ]);
-
-              
-        if (! $response->successful()) {
-            return back()->withErrors('Unable to contact Paystack. Please try again.');
-        }
-
-        $data = $response->json();
-
-        if (empty($data['status']) || empty($data['data']['authorization_url'])) {
-            return back()->withErrors($data['message'] ?? 'Payment initialization failed.');
-        }
-
-        // Redirect customer to Paystack checkout page
-        return redirect($data['data']['authorization_url']);
-    }
 
     private function processWeFlexfyPayment($order, $amount, $user)
     {

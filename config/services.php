@@ -35,11 +35,7 @@ return [
         ],
     ],
     
-    'stripe' => [
-        'secret' => env('STRIPE_SECRET'),
-        'webhookkey' => env('STRIPE_WEBHOOK_SECRET'),
-    ],
-    
+
     'google_maps' => [
         'api_key' => env('GOOGLE_MAPS_API_KEY'),
     ],

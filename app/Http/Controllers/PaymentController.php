@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Stripe\Charge;
-use Stripe\Stripe;
 use App\Models\Order;
 use App\Mail\OrderEmail;
 use App\Mail\AdminOrderNotificationEmail;
 use App\Models\Customer;
 use App\Models\OrderSettings;
-use Stripe\PaymentIntent;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use App\Helpers\TwilioHelper;
@@ -39,17 +35,12 @@ class PaymentController extends Controller
 
 
     protected $provider;
-    protected $stripeSecret;
-    protected $paystackSecret;
 
     public function __construct()
     {
         $this->shareMainSiteViewData();
 
-        $this->provider      = config('payments.provider');
-        $this->stripeSecret  = config('payments.stripe.secret');
-        $this->paystackSecret= config('payments.paystack.secret');  
-
+        $this->provider = config('payments.provider', 'weflexfy');
     }
 
     
@@ -146,209 +137,8 @@ class PaymentController extends Controller
 
     public function paymentSuccess(Request $request)
     {
-        // still run your “wizard” checks if you want
         $this->runAllChecks();
-
-        return match ($this->provider) {
-            'stripe'   => $this->handleStripeSuccess($request),
-            'paystack' => $this->handlePaystackSuccess($request),
-            'weflexfy' => $this->handleWeFlexfySuccess($request),
-            default    => redirect()->route('menu')->withErrors('Unsupported payment provider.'),
-        };
-    }
-    
-
-
-
-
-
-
-    private function handleStripeSuccess(Request $request)
-    {
-        Stripe::setApiKey($this->stripeSecret);
-
-        $session_id = $request->query('session_id');
-
-        if (!$session_id) {
-            return redirect()->route('menu')->withErrors('Session ID not found!');
-        }
-
-        try {
-            if (str_starts_with($session_id, 'mock_session_')) {
-                $order_no = $request->query('order_no');
-            } else {
-                $checkout_session = \Stripe\Checkout\Session::retrieve($session_id);
-                $order_no = $checkout_session->metadata->order_no ?? null;
-            }
-
-            if (!$order_no) {
-                return redirect()->route('menu')->withErrors('No order reference found.');
-            }
-
-            $order = Order::with(['orderItems', 'customer'])
-                ->where('order_no', $order_no)
-                ->first();
-
-            if (!$order) {
-                throw new NotFoundHttpException();
-            }
-
-            // Save Stripe session id on the order
-            $order->session_id = $session_id;
-
-            if ($order->status_online_pay === 'unpaid') {
-                $order->status_online_pay = 'paid';
-            }
-            $order->save();
-
-            // Send email
-            try {
-                Mail::to($order->customer->email)->send(new OrderEmail(
-                    $order->orderItems,
-                    $order->customer->first_name,
-                    $order->customer->email,
-                    $order->order_no,
-                    $order->delivery_fee,
-                    $order->total_price,
-                    config('site.email'),
-                    RestaurantPhoneNumber::first()?->phone_number
-                ));
-            } catch (\Exception $e) {
-                Log::error('Order email failed to send: '.$e->getMessage());
-            }
-
-            // Send admin notification
-            try {
-                $orderSettings = OrderSettings::first();
-                if ($orderSettings && $orderSettings->notification_emails) {
-                    $emails = array_map('trim', explode(',', $orderSettings->notification_emails));
-                    foreach ($emails as $email) {
-                        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            Mail::to($email)->send(new AdminOrderNotificationEmail($order));
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::error('Admin order notification email failed to send: '.$e->getMessage());
-            }
-
-            // WhatsApp
-            $this->sendWhatsAppNotification($order);
-
-            // Deduct Stock
-            $this->deductStockForOrder($order, 'Online Order');
-
-            // Clear session
-            $this->clearOrderSession();
-
-            return view('main-site.payment-success', compact('order'));
-
-        } catch (\Exception $e) {
-            $error_msg = $e->getMessage();
-            return redirect()->route('menu')->withErrors($error_msg);
-        }
-    }
-
-
-
-    private function handlePaystackSuccess(Request $request)
-    {
-        $reference = $request->query('reference');
-
-        if (!$reference) {
-            return redirect()->route('menu')
-                ->withErrors('Missing Paystack reference.');
-        }
-
- 
-        $response = Http::withToken($this->paystackSecret)
-            ->get("https://api.paystack.co/transaction/verify/{$reference}");
-
-        if (! $response->successful()) {
-            return redirect()->route('menu')
-                ->withErrors('Unable to verify payment with Paystack. Please try again.');
-        }
-
-        $data = $response->json();
-
-        // Paystack returns: status => true/false, data.status => 'success'|'failed' etc.
-        if (empty($data['status']) || empty($data['data'])) {
-            return redirect()->route('menu')
-                ->withErrors($data['message'] ?? 'Payment verification failed.');
-        }
-
-        $tx = $data['data'];
-
-        if ($tx['status'] !== 'success') {
-            return redirect()->route('menu')
-                ->withErrors('Payment was not successful. Current status: '.$tx['status']);
-        }
-
-        // Get order_no from metadata (we set it when initializing)
-        $order_no = $tx['metadata']['order_no'] ?? null;
-        if (!$order_no) {
-            return redirect()->route('menu')
-                ->withErrors('Order reference missing from Paystack metadata.');
-        }
-
-        $order = Order::with(['orderItems', 'customer'])
-            ->where('order_no', $order_no)
-            ->first();
-
-        if (!$order) {
-            return redirect()->route('menu')
-                ->withErrors('Order not found for this transaction.');
-        }
-
-        // Mark order as paid if still unpaid
-        if ($order->status_online_pay === 'unpaid') {
-            $order->status_online_pay = 'paid';
-            $order->session_id        = $reference; // store Paystack ref in session_id if you like
-            $order->payment_method    = 'PAYSTACK';
-            $order->save();
-
-            // Send email
-            try {
-                Mail::to($order->customer->email)->send(new OrderEmail(
-                    $order->orderItems,
-                    $order->customer->first_name,
-                    $order->customer->email,
-                    $order->order_no,
-                    $order->delivery_fee,
-                    $order->total_price,
-                    config('site.email'),
-                    RestaurantPhoneNumber::first()?->phone_number
-                ));
-            } catch (\Exception $e) {
-                Log::error('Order email failed to send (paystack): '.$e->getMessage());
-            }
-
-            // Send admin notification
-            try {
-                $orderSettings = OrderSettings::first();
-                if ($orderSettings && $orderSettings->notification_emails) {
-                    $emails = array_map('trim', explode(',', $orderSettings->notification_emails));
-                    foreach ($emails as $email) {
-                        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            Mail::to($email)->send(new AdminOrderNotificationEmail($order));
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::error('Admin order notification email failed to send (paystack): '.$e->getMessage());
-            }
-
-            // WhatsApp
-            $this->sendWhatsAppNotification($order);
-
-            // Deduct Stock
-            $this->deductStockForOrder($order, 'Online Order');
-
-            // Clear session
-            $this->clearOrderSession();
-        }
-
-        return view('main-site.payment-success', compact('order'));
+        return $this->handleWeFlexfySuccess($request);
     }
 
 
@@ -389,86 +179,7 @@ class PaymentController extends Controller
     }
 
 
-    public function handleStripeWebhook(Request $request)
-    {
-        $endpoint_secret =  config('services.stripe.webhookkey');
-    
-        // Retrieve the raw payload
-        $payload = @file_get_contents('php://input');
-        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-        $event = null;
-    
-    
-        try {
-            // Verify the event signature
-            $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
-    
-            // Handle specific event types
-            if ($event->type === 'checkout.session.completed') {
-                $session = $event->data->object;  
-     
-                $order = Order::with(['orderItems', 'customer'])->where('session_id', $session->id)->first();
-    
-    
-                if ($order->status_online_pay === 'unpaid') {
-                    $order->status_online_pay = 'paid';
-                    $order->save();
-    
-                    // Send the email
-                    try {
-                        Mail::to($order->customer->email)->send(new OrderEmail(
-                            $order->orderItems,
-                            $order->customer->name,
-                            $order->customer->email,
-                            $order->order_no,
-                            $order->delivery_fee,
-                            $order->total_price,
-                            config('site.email'),
-                            RestaurantPhoneNumber::first() ? RestaurantPhoneNumber::first()->phone_number : null
-                        ));
-                    } catch (Exception $e) {
-                        Log::error('Order email failed to send: ' . $e->getMessage());
-                    }
-                    
-                    // Send admin notification
-                    try {
-                        $orderSettings = OrderSettings::first();
-                        if ($orderSettings && $orderSettings->notification_emails) {
-                            $emails = array_map('trim', explode(',', $orderSettings->notification_emails));
-                            foreach ($emails as $email) {
-                                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                                    Mail::to($email)->send(new AdminOrderNotificationEmail($order));
-                                }
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        Log::error('Admin order notification email failed to send (webhook): '.$e->getMessage());
-                    }
 
-                    // send whatsapp message
-                    $this->sendWhatsAppNotification($order);                       
-                    
-                    // Deduct Stock
-                    $this->deductStockForOrder($order, 'Online Webhook Order');
-                }
-     
-            }
-    
-            return response('Webhook handled', 200);
-        } catch (\UnexpectedValueException $e) {
-            // Invalid payload
-            Log::error('Invalid payload: ' . $e->getMessage());
-            return response('Invalid payload', 400);
-        } catch (\Stripe\Exception\SignatureVerificationException $e) {
-            // Invalid signature
-            Log::error('Invalid signature: ' . $e->getMessage());
-            return response('Invalid signature', 400);
-        } catch (Exception $e) {
-            // General error
-            Log::error('Webhook error: ' . $e->getMessage());
-            return response('Webhook error', 500);
-        }
-    }
 
     // Call all checks at once
     protected function runAllChecks()
@@ -671,7 +382,7 @@ class PaymentController extends Controller
 
         // 2. Check Room Bookings
         $roomBooking = RoomBooking::where(function ($q) use ($requestToken) {
-            if ($requestToken) $q->where('weflexfy_request_token', $requestToken)->orWhere('stripe_session_id', $requestToken);
+            if ($requestToken) $q->where('weflexfy_request_token', $requestToken);
         })->first();
 
         if ($roomBooking) {
@@ -710,7 +421,7 @@ class PaymentController extends Controller
 
         // 3. Check Venue Bookings
         $venueBooking = VenueBooking::where(function ($q) use ($requestToken) {
-            if ($requestToken) $q->where('weflexfy_request_token', $requestToken)->orWhere('stripe_session_id', $requestToken);
+            if ($requestToken) $q->where('weflexfy_request_token', $requestToken);
         })->first();
 
         if ($venueBooking) {

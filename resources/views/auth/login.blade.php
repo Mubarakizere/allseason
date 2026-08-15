@@ -1,165 +1,220 @@
 
 @extends('layouts.main-site')
 
+@section('title', 'Login')
+
 @push('styles')
-    
-    
-    <!-- Animation CSS -->
-    <link rel="stylesheet" href="/assets/css/animate.css">	
     <!-- Latest Bootstrap min CSS -->
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css?family=Kaushan+Script&amp;display=swap" rel="stylesheet"> 
-    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:100,100i,300,300i,400,400i,600,600i,700,700i&amp;display=swap" rel="stylesheet"> 
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&amp;display=swap" rel="stylesheet"> 
     <!-- Icon Font CSS -->
     <link rel="stylesheet" href="/assets/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/ionicons.min.css">
     <link rel="stylesheet" href="/assets/css/themify-icons.css">
     <link rel="stylesheet" href="/assets/css/linearicons.css">
-    <link rel="stylesheet" href="/assets/css/flaticon.css">
-    <!--- owl carousel CSS-->
-    <link rel="stylesheet" href="/assets/owlcarousel/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="/assets/owlcarousel/css/owl.theme.css">
-    <link rel="stylesheet" href="/assets/owlcarousel/css/owl.theme.default.min.css">
-    <!-- Slick CSS -->
-    <link rel="stylesheet" href="/assets/css/slick.css">
-    <link rel="stylesheet" href="/assets/css/slick-theme.css">
-    <!-- Magnific Popup CSS -->
-    <link rel="stylesheet" href="/assets/css/magnific-popup.css">
-    <!-- DatePicker CSS -->
-    <link href="/assets/css/datepicker.min.css" rel="stylesheet">
-    <!-- TimePicker CSS -->
-    <link href="/assets/css/mdtimepicker.min.css" rel="stylesheet">
     <!-- Style CSS -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/responsive.css">
     <link id="layoutstyle" rel="stylesheet" href="/assets/color/theme-red.css">
+
+<style>
+    header.header_wrap, footer, .footer_top, .bottom_footer, #preloader {
+        display: none !important;
+    }
+    html, body {
+        overflow-x: hidden !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: #f8f9fa !important;
+        color: #333333;
+        min-height: 100vh;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        overflow-x: hidden !important;
+        max-width: 100% !important;
+    }
+    .auth-container, .auth-container.row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        min-height: 100vh;
+    }
+    .auth-bg-side {
+        background: linear-gradient(135deg, rgba(20, 20, 20, 0.75) 0%, rgba(255, 50, 77, 0.55) 100%), url('/assets/images/banner1.jpg') center/cover no-repeat;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 60px;
+    }
+    .auth-form-side {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffff;
+        padding: 40px 20px;
+    }
+    .auth-card {
+        width: 100%;
+        max-width: 440px;
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef0f2;
+    }
+    .form-control-light {
+        background: #f8f9fa !important;
+        border: 1px solid #dde1e5 !important;
+        color: #222222 !important;
+        border-radius: 8px !important;
+        height: 50px !important;
+        padding-left: 16px !important;
+    }
+    .form-control-light:focus {
+        background: #ffffff !important;
+        border-color: #FF324D !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 50, 77, 0.2) !important;
+    }
+    .btn-brand {
+        background: #FF324D !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        height: 50px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(255, 50, 77, 0.35);
+    }
+    .btn-brand:hover {
+        background: #e0263f !important;
+        box-shadow: 0 8px 25px rgba(255, 50, 77, 0.45);
+        transform: translateY(-2px);
+    }
+    .input-group-text-light {
+        background: #f8f9fa !important;
+        border: 1px solid #dde1e5 !important;
+        border-left: none !important;
+        color: #666666 !important;
+        border-top-right-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+    }
+</style>
 @endpush
 
 @push('scripts')
- 
-    <!-- Latest jQuery --> 
-    <script src="/assets/js/jquery-1.12.4.min.js"></script> 
-    <!-- Latest compiled and minified Bootstrap --> 
-    <script src="/assets/bootstrap/js/bootstrap.min.js"></script> 
-    <!-- owl-carousel min js  --> 
-    <script src="/assets/owlcarousel/js/owl.carousel.min.js"></script> 
-    <!-- magnific-popup min js  --> 
-    <script src="/assets/js/magnific-popup.min.js"></script> 
-    <!-- waypoints min js  --> 
-    <script src="/assets/js/waypoints.min.js"></script> 
-    <!-- parallax js  --> 
-    <script src="/assets/js/parallax.js"></script> 
-    <!-- countdown js  --> 
-    <script src="/assets/js/jquery.countdown.min.js"></script> 
-    <!-- jquery.countTo js  -->
-    <script src="/assets/js/jquery.countTo.js"></script>
-    <!-- imagesloaded js --> 
-    <script src="/assets/js/imagesloaded.pkgd.min.js"></script>
-    <!-- isotope min js --> 
-    <script src="/assets/js/isotope.min.js"></script>
-    <!-- jquery.appear js  -->
-    <script src="/assets/js/jquery.appear.js"></script>
-    <!-- jquery.dd.min js -->
-    <script src="/assets/js/jquery.dd.min.js"></script>
-    <!-- slick js -->
-    <script src="/assets/js/slick.min.js"></script>
-    <!-- DatePicker js -->
-    <script src="/assets/js/datepicker.min.js"></script>
-    <!-- TimePicker js -->
-    <script src="/assets/js/mdtimepicker.min.js"></script>
-    <!-- scripts js --> 
-    <script src="/assets/js/scripts.js"></script>
-
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.toggle-password').on('click', function() {
-                const input = $('#password');
-                const icon = $(this);
-                const type = input.attr('type') === 'password' ? 'text' : 'password';
-                input.attr('type', type);
-                icon.toggleClass('fa-eye fa-eye-slash');
-            });
+<script>
+    $(document).ready(function() {
+        $('.toggle-password').on('click', function() {
+            const input = $('#password');
+            const icon = $(this);
+            const type = input.attr('type') === 'password' ? 'text' : 'password';
+            input.attr('type', type);
+            icon.toggleClass('fa-eye fa-eye-slash');
         });
-    </script>
-
+    });
+</script>
 @endpush
 
-
-@section('title', 'Create Account')
-
-
 @section('header')
-    <!-- START HEADER -->
-        <header class="header_wrap fixed-top header_with_topbar light_skin main_menu_uppercase">
-        <div class="container">
-            @include('partials.nav')
-        </div>
-    </header>
-    <!-- END HEADER -->
 @endsection
 
-
 @section('content')
-
- 
-
-    <!-- START SECTION SHOP -->
-    <div class="section">
-        <div class="container">
-        
-
-            <form method="post" action="{{ route('auth.login.process') }}">
-                @csrf
-                <div class="row justify-content-center">
-                    <div class="col-12 col-lg-6 mx-auto">
-                        <div class="order_review">
-                            <h4 class="mb-4">Login to Your Account</h4>
-                            @include('partials.message-bag')
-                            
-                            <div class="row">
-
-                                <!-- Email -->
-                                <div class="form-group col-md-12">
-                                    <label for="email">Email Address</label>
-                                    <input id="email" class="form-control" required type="email" name="email" value="{{ old('email') }}">
-                                </div>
-
-                                <!-- Password -->
-                                <div class="form-group col-md-12 position-relative">
-                                    <label for="password">Password</label>
-                                    <div class="input-group">
-                                        <input id="password" class="form-control" required type="password" name="password">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text">
-                                                <i class="fas fa-eye toggle-password" style="cursor:pointer;"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Submission -->
-                                <div class="form-group mb-0 mt-2 col-md-12">
-                                    <button type="submit" class="btn btn-default btn-block">Login</button>
-                                </div>
-
-                                <!-- Login Link -->
-                                <div class="form-group mb-0 mt-2 col-md-12">
-                                    <p class="text-center">Don't have an account? <a href="{{ route('customer.account.create') }}">Create an Account</a></p>
-                                    <p class="text-center">Forgot password? <a href="{{ route('auth.password.request') }}">Reset here</a></p>
-                                </div>
-
-                            </div>
-                        </div>
+<div class="container-fluid p-0">
+    <div class="row g-0 auth-container">
+        <!-- LEFT SIDE: Hero Background Image -->
+        <div class="col-lg-6 d-none d-lg-flex auth-bg-side">
+            <div>
+                <a href="{{ route('home') }}" class="d-inline-block text-decoration-none">
+                    <h3 class="font-weight-bold text-white mb-0">All The Season Garden</h3>
+                </a>
+            </div>
+            <div>
+                <span class="badge bg-danger px-3 py-2 rounded-pill mb-3" style="font-size: 12px; letter-spacing: 1px;">WELCOME BACK</span>
+                <h1 class="display-5 font-weight-bold text-white mb-3">Tasty African Delights & Memorable Moments</h1>
+                <p class="text-white-50 lead mb-4">Log in to manage your orders, check room reservations, and explore our special dishes.</p>
+                <div class="d-flex gap-3">
+                    <div class="d-flex align-items-center me-4">
+                        <i class="fa fa-check-circle text-danger me-2" style="font-size: 18px;"></i>
+                        <span class="text-white">Authentic Cuisine</span>
+                    </div>
+                    <div class="d-flex align-items-center me-4">
+                        <i class="fa fa-check-circle text-danger me-2" style="font-size: 18px;"></i>
+                        <span class="text-white">Fast Online Ordering</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-check-circle text-danger me-2" style="font-size: 18px;"></i>
+                        <span class="text-white">Luxury Accommodation</span>
                     </div>
                 </div>
-            </form>
+            </div>
+            <div>
+                <p class="text-white-50 mb-0 small">&copy; {{ date('Y') }} All The Season Garden. All Rights Reserved.</p>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Form Container (Light Theme) -->
+        <div class="col-lg-6 col-12 auth-form-side">
+            <div class="mb-4 text-center d-lg-none">
+                <a href="{{ route('home') }}" class="text-decoration-none">
+                    <h4 class="font-weight-bold text-dark mb-1">All The Season Garden</h4>
+                </a>
+            </div>
+
+            <div class="mb-4 w-100 text-start" style="max-width: 440px;">
+                <a href="{{ route('home') }}" class="text-muted text-decoration-none small">
+                    <i class="fa fa-arrow-left me-1"></i> Back to Website
+                </a>
+            </div>
+
+            <div class="auth-card">
+                <h3 class="font-weight-bold text-dark mb-1">Sign In</h3>
+                <p class="text-muted small mb-4">Enter your credentials to access your account.</p>
+
+                @include('partials.message-bag')
+
+                <form method="post" action="{{ route('auth.login.process') }}">
+                    @csrf
+
+                    <!-- Email -->
+                    <div class="form-group mb-3">
+                        <label for="email" class="text-dark small font-weight-bold mb-1">Email Address</label>
+                        <input id="email" class="form-control form-control-light" required type="email" name="email" value="{{ old('email') }}" placeholder="name@example.com">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="password" class="text-dark small font-weight-bold mb-0">Password</label>
+                            <a href="{{ route('auth.password.request') }}" class="text-danger small text-decoration-none">Forgot password?</a>
+                        </div>
+                        <div class="input-group">
+                            <input id="password" class="form-control form-control-light" style="border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;" required type="password" name="password" placeholder="••••••••">
+                            <span class="input-group-text input-group-text-light">
+                                <i class="fas fa-eye toggle-password" style="cursor:pointer;"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Submission -->
+                    <div class="form-group mb-4 mt-4">
+                        <button type="submit" class="btn btn-brand w-100">Sign In</button>
+                    </div>
+
+                    <!-- Signup Link -->
+                    <p class="text-center text-muted small mb-0">
+                        Don't have an account? <a href="{{ route('customer.account.create') }}" class="text-danger font-weight-bold text-decoration-none">Create an Account</a>
+                    </p>
+                </form>
+            </div>
         </div>
     </div>
-    <!-- END SECTION SHOP -->
-
- 
+</div>
 @endsection

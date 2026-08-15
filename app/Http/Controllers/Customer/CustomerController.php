@@ -209,7 +209,12 @@ class CustomerController extends Controller
             // }
 
             $message = ['success' => 'Account created successfully. You can now log in.'];
+            $existingCart = session()->get('customer', []);
             auth()->login($user);
+            $request->session()->regenerate();
+            if (!empty($existingCart)) {
+                session()->put('customer', $existingCart);
+            }
             return redirect()->route('home')->with($message);
         } else {
             $message = ['error' => 'Failed to create account. Please try again.'];

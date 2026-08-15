@@ -9,8 +9,6 @@ use App\Models\SiteSetting;
 use App\Models\OrderSettings;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Stripe\Stripe;
-use Stripe\Checkout\Session as StripeSession;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\VenueBookingEmail;
@@ -96,7 +94,6 @@ class VenueController extends Controller
             'deposit_amount' => $deposit_amount,
             'payment_status' => 'unpaid',
             'status' => 'pending',
-            'stripe_session_id' => null,
         ]);
 
         $weFlexfyService = app(WeFlexfyService::class);
@@ -127,7 +124,6 @@ class VenueController extends Controller
         }
 
         $booking->weflexfy_request_token = $response['requestToken'];
-        $booking->stripe_session_id = $response['requestToken'];
         $booking->save();
 
         $siteSettings = SiteSetting::latest()->first();
@@ -156,7 +152,7 @@ class VenueController extends Controller
                 $bookingQuery->where('id', $booking_id);
             }
             if ($session_id) {
-                $bookingQuery->orWhere('weflexfy_request_token', $session_id)->orWhere('stripe_session_id', $session_id);
+                $bookingQuery->orWhere('weflexfy_request_token', $session_id);
             }
 
             $booking = $bookingQuery->firstOrFail();

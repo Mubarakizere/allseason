@@ -124,8 +124,8 @@
 	<div class="container">
 		<div class="row">
             <div class="col-lg-6 col-md-6 mb-4 mb-md-0">
-              <div class="product-image">
-                    <img src='{{ asset('storage/' . $menu->image) }}' alt="product_img1" />
+                <div class="product-image" style="background: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                    <img src='{{ $menu->image_url }}' alt="{{ $menu->name }}" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';" />
                 </div>
             </div>
             <div class="col-lg-6 col-md-6">
@@ -224,15 +224,15 @@
                             <div class="item">
                                 <div class="single_product">
                                     <a href="{{ route('menu.item', $relatedMenu->id) }}">
-                                        <div class="menu_product_img">
-                                            <img src="{{ asset('storage/' . $relatedMenu->image) }}" alt="{{ $relatedMenu->name }} img">
+                                        <div class="menu_product_img" style="height: 180px; overflow: hidden; background: #f8f9fa;">
+                                            <img src="{{ $relatedMenu->image_url }}" alt="{{ $relatedMenu->name }}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';">
                                         </div>
                                     </a>
-                                    <div class="menu_product_info">
+                                    <div class="menu_product_info p-3">
                                         <div class="title">
-                                            <h5><a href="{{ route('menu.item', $relatedMenu->id) }}">{{ $relatedMenu->name }}</a></h5>
+                                            <h5 class="mb-1"><a href="{{ route('menu.item', $relatedMenu->id) }}" class="text-dark font-weight-bold">{{ $relatedMenu->name }}</a></h5>
                                         </div>
-                                        <p>{!! $site_settings->currency_symbol !!}{{ number_format($relatedMenu->price, 2) }}</p>
+                                        <p class="mb-0 text-danger font-weight-bold">{!! $site_settings->currency_symbol !!}{{ number_format($relatedMenu->price, 2) }}</p>
                                     </div>
                                 </div>
                             </div>

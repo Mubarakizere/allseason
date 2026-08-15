@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\Menu;
 use App\Models\Order;
+use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Testimony;
@@ -39,16 +40,16 @@ class MainSiteController extends Controller
 
     public function home()
     {
+        $menuCategories = Category::has('menus')->with(['menus' => function($q) {
+            $q->take(8);
+        }])->get();
 
-
-        $menus = Menu::inRandomOrder()->get();
+        $allMenus = Menu::with('category')->latest()->take(8)->get();
         $blogs = Blog::orderBy('created_at', 'desc')->limit(3)->get();
         $testimonies = Testimony::inRandomOrder()->limit(5)->get();
+        $banners = Banner::active()->ordered()->get();
 
-
-
-
-        return view('main-site.index', compact('menus','blogs','testimonies'));
+        return view('main-site.index', compact('menuCategories', 'allMenus', 'blogs', 'testimonies', 'banners'));
     }
 
     public function about()

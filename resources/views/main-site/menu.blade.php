@@ -71,6 +71,7 @@
     <!-- scripts js --> 
     <script src="/assets/js/scripts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('/assets/js/customer-cart-menu-route.js') }}"></script>
 
  
 @endpush
@@ -161,18 +162,27 @@
             </div>
                 <div class="row">
                     @foreach ($category->menus as $menu)
-                        <div class="d-flex col-lg-3 col-sm-6">
-                            <div class="single_product">
-                                <a href="{{ route('menu.item', $menu->id) }}">
-                                    <div class="menu_product_img">
-                                        <img src="{{ asset('storage/' . $menu->image) }}" alt="{{ $menu->name }} img">
+                        <div class="d-flex col-lg-3 col-sm-6 mb-4">
+                            <div class="single_product w-100 shadow-sm rounded overflow-hidden">
+                                <div class="menu_product_img" style="height: 180px; overflow: hidden; background: #f8f9fa; position: relative;">
+                                    <a href="{{ route('menu.item', $menu->id) }}">
+                                        <img src="{{ $menu->image_url }}" alt="{{ $menu->name }}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';">
+                                    </a>
+                                    <div class="action_btn">
+                                        <button type="button" class="btn btn-default btn-sm rounded-0 add-to-cart-quick"
+                                            data-id="{{ $menu->id }}"
+                                            data-name="{{ e($menu->name) }}"
+                                            data-price="{{ $menu->price }}"
+                                            data-img_src="{{ $menu->image_url }}">
+                                            <i class="linearicons-cart me-1"></i> Add To Cart
+                                        </button>
                                     </div>
-                                </a>
-                                <div class="menu_product_info">
+                                </div>
+                                <div class="menu_product_info p-3">
                                     <div class="title">
-                                        <h5><a href="{{ route('menu.item', $menu->id) }}">{{ $menu->name }}</a></h5>
+                                        <h5 class="mb-1"><a href="{{ route('menu.item', $menu->id) }}" class="text-dark font-weight-bold">{{ $menu->name }}</a></h5>
                                     </div>
-                                    <p>{!! $site_settings->currency_symbol !!}{{ number_format($menu->price, 2) }}</p>
+                                    <p class="mb-0 text-danger font-weight-bold">{!! $site_settings->currency_symbol !!}{{ number_format($menu->price, 2) }}</p>
                                 </div>
                             </div>
                         </div>

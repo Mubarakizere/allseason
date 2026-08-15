@@ -10,6 +10,7 @@ use App\Http\Controllers\MainSiteController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CartController;
 use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\VenueController;
@@ -75,12 +76,11 @@ Route::post('cart/update', [MainSiteController::class, 'updateCartQuantity'])->n
 
 Route::get('getcart-totalitems/', [MainSiteController::class, 'getTotalItems'])->name('customer.getcart.totalitems');
 
- //stripe payment routes
+ // Payment routes
 Route::get('payment/', [PaymentController::class, 'payment'])->name('payment');
 
 Route::get('payment-success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
 Route::get('payment-cancel', [PaymentController::class, 'paymentCancel'])->name('payment.cancel');
-Route::post('stripe/webhook', [PaymentController::class, 'handleStripeWebhook']);
 Route::post('weflexfy/webhook', [PaymentController::class, 'handleWeFlexfyWebhook'])->name('weflexfy.webhook');
 
   
@@ -343,6 +343,13 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
         Route::post('testimonies/store', [TestimonyController::class, 'store'])->name('admin.testimonies.store');
         Route::put('testimonies/{id}', [TestimonyController::class, 'update'])->name('admin.testimonies.update');
         Route::delete('testimonies/{id}', [TestimonyController::class, 'destroy'])->name('admin.testimonies.destroy');
+
+        //Admin Hero Banners routes
+        Route::get('banners', [BannerController::class, 'index'])->name('admin.banners.index');
+        Route::post('banners/store', [BannerController::class, 'store'])->name('admin.banners.store');
+        Route::put('banners/{id}', [BannerController::class, 'update'])->name('admin.banners.update');
+        Route::delete('banners/{id}', [BannerController::class, 'destroy'])->name('admin.banners.destroy');
+        Route::patch('banners/{id}/toggle-status', [BannerController::class, 'toggleStatus'])->name('admin.banners.toggle-status');
 
 
         //Admin Manage Users routes

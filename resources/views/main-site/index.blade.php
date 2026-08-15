@@ -80,6 +80,7 @@
      <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox/dist/jquery.fancybox.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('/assets/js/customer-cart-menu-route.js') }}"></script>
     
 
 
@@ -151,54 +152,49 @@
 <div class="banner_section full_screen staggered-animation-wrap pattern_banner_bottom">
     <div id="carouselExampleControls" class="carousel slide carousel-fade carousel_style2 light_arrow" data-ride="carousel">
         <div class="carousel-inner">
-            <div class="carousel-item active background_bg overlay_bg_40" data-img-src="/assets/images/banner5.jpg">
-                <div class="banner_slide_content">
-                    <div class="container"><!-- STRART CONTAINER -->
-                        <div class="row">
-                            <div class="col-lg-7 col-md-12 col-sm-12">
-                                <div class="banner_content2 text_white">
-                                    <h2 class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.2s">Tasty African Delights</h2>
-                                    <p class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.4s">Experience the vibrant flavors of Africa with dishes crafted to perfection. <br class="d-none d-md-block" /> Each bite takes you closer to tradition and joy.</p>
-                                    <a class="btn btn-default rounded-0 staggered-animation" href="{{ route('menu') }}" data-animation="fadeInUp" data-animation-delay="0.6s">Order Online</a>
+            @forelse($banners as $index => $banner)
+                <div class="carousel-item {{ $index === 0 ? 'active' : '' }} background_bg {{ $banner->overlay_class }}" data-img-src="{{ $banner->image_url }}">
+                    <div class="banner_slide_content">
+                        <div class="container"><!-- STRART CONTAINER -->
+                            <div class="row {{ $banner->align === 'center' ? 'justify-content-center' : ($banner->align === 'right' ? 'justify-content-md-end' : '') }}">
+                                <div class="{{ $banner->align === 'right' ? 'col-lg-6 col-md-12 col-sm-12' : 'col-lg-7 col-md-12 col-sm-12' }} {{ $banner->align === 'center' ? 'text-center' : '' }}">
+                                    <div class="banner_content2 text_white">
+                                        @if($banner->subtitle)
+                                            <h4 class="staggered-animation text_default" data-animation="fadeInUp" data-animation-delay="0.2s">{{ $banner->subtitle }}</h4>
+                                        @endif
+                                        <h2 class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.2s">{{ $banner->title }}</h2>
+                                        @if($banner->description)
+                                            <p class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.4s">{!! nl2br(e($banner->description)) !!}</p>
+                                        @endif
+                                        @if($banner->btn_text_1 && $banner->btn_link_1)
+                                            <a class="btn btn-default rounded-0 staggered-animation me-2 mb-2 mb-sm-0" href="{{ $banner->btn_link_1 }}" data-animation="fadeInUp" data-animation-delay="0.6s">{{ $banner->btn_text_1 }}</a>
+                                        @endif
+                                        @if($banner->btn_text_2 && $banner->btn_link_2)
+                                            <a class="btn btn-white rounded-0 staggered-animation mb-2 mb-sm-0" href="{{ $banner->btn_link_2 }}" data-animation="fadeInUp" data-animation-delay="0.6s">{{ $banner->btn_text_2 }}</a>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- END CONTAINER-->
+                    </div>
+                </div>
+            @empty
+                <div class="carousel-item active background_bg overlay_bg_40" data-img-src="/assets/images/banner5.jpg">
+                    <div class="banner_slide_content">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-7 col-md-12 col-sm-12">
+                                    <div class="banner_content2 text_white">
+                                        <h2 class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.2s">Tasty African Delights</h2>
+                                        <p class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.4s">Experience the vibrant flavors of Africa with dishes crafted to perfection.</p>
+                                        <a class="btn btn-default rounded-0 staggered-animation" href="{{ route('menu') }}" data-animation="fadeInUp" data-animation-delay="0.6s">Order Online</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div><!-- END CONTAINER-->
+                    </div>
                 </div>
-            </div>
-            <div class="carousel-item background_bg overlay_bg_60" data-img-src="/assets/images/banner2.jpg">
-                <div class="banner_slide_content">
-                    <div class="container"><!-- STRART CONTAINER -->
-                        <div class="row justify-content-center">
-                            <div class="col-lg-7 col-md-12 col-sm-12 text-center">
-                                <div class="banner_content2 text_white">
-                                    <h2 class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.2s">Choose & Savor</h2>
-                                    <p class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.4s">Indulge in suya and other mouthwatering dishes, infused with authentic spices <br class="d-none d-md-block" /> and crafted to delight your taste buds.</p>
-                                    <a class="btn btn-default rounded-0 staggered-animation" href="{{ route('menu') }}" data-animation="fadeInUp" data-animation-delay="0.6s">Order Online</a>
-                                    <a class="btn btn-white rounded-0 staggered-animation" href="{{ route('contact') }}" data-animation="fadeInUp" data-animation-delay="0.6s">Contact Us</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- END CONTAINER-->
-                </div>
-            </div>
-            <div class="carousel-item background_bg overlay_bg_40" data-img-src="/assets/images/banner6.jpg">
-                <div class="banner_slide_content">
-                    <div class="container"><!-- STRART CONTAINER -->
-                        <div class="row justify-content-md-end">
-                            <div class="col-lg-6 col-md-12 col-sm-12">
-                                <div class="banner_content2 text_white">
-                                    <h4 class="staggered-animation text_default" data-animation="fadeInUp" data-animation-delay="0.2s">Are You Ready</h4>
-                                    <h2 class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.2s">Enjoy Every Bite</h2>
-                                    <p class="staggered-animation" data-animation="fadeInUp" data-animation-delay="0.4s">From sizzling suya to hearty stews, enjoy African dishes made to bring joy <br class="d-none d-md-block" /> to every occasion and appetite.</p>
-                                    <a class="btn btn-default rounded-0 staggered-animation" href="{{ route('menu') }}" data-animation="fadeInUp" data-animation-delay="0.6s">Order Online</a>
-                                    <a class="btn btn-white rounded-0 staggered-animation" href="{{ route('contact') }}" data-animation="fadeInUp" data-animation-delay="0.6s">Contact Us</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- END CONTAINER-->
-                </div>
-            </div>
+            @endforelse
         </div>
         <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev"><i class="ion-chevron-left"></i></a>
         <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next"><i class="ion-chevron-right"></i></a>
@@ -221,46 +217,165 @@
                     <div class="small_divider clearfix"></div>
                 </div>
             </div>
+
+            <!-- CATEGORY FILTER TABS -->
+            <style>
+                @media (max-width: 767.98px) {
+                    .tab-style1 #menuTabs {
+                        display: flex !important;
+                        flex-wrap: nowrap !important;
+                        overflow-x: auto !important;
+                        white-space: nowrap !important;
+                        padding-bottom: 8px !important;
+                        margin-bottom: 20px !important;
+                        justify-content: flex-start !important;
+                        -webkit-overflow-scrolling: touch;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .tab-style1 #menuTabs::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .tab-style1 #menuTabs .nav-item {
+                        flex: 0 0 auto !important;
+                        margin-right: 6px !important;
+                    }
+                    .tab-style1 #menuTabs .nav-link {
+                        padding: 6px 14px !important;
+                        font-size: 12px !important;
+                        border-radius: 20px !important;
+                        background: #f4f4f4;
+                        color: #444;
+                        border: 1px solid #ddd;
+                    }
+                    .tab-style1 #menuTabs .nav-link.active {
+                        background: #FF324D !important;
+                        color: #fff !important;
+                        border-color: #FF324D !important;
+                    }
+                    .banner_content2 h2 {
+                        font-size: 32px !important;
+                        line-height: 1.2 !important;
+                    }
+                    .banner_content2 h4 {
+                        font-size: 16px !important;
+                    }
+                    .banner_content2 p {
+                        font-size: 13px !important;
+                        margin-bottom: 20px !important;
+                    }
+                }
+            </style>
             <div class="row">
                 <div class="col-12">
-  
-                    <div class="row">
-
-   
-                        @forelse ($menus as $menu) 
-
-
-                        <div class="d-flex col-lg-3 col-sm-6">
-                            <div class="single_product">
-                                <a href="{{ route('menu.item',$menu->id) }}">
-                                <div class="menu_product_img">
-                                    <img src="{{ asset('storage/' . $menu->image) }}" alt="{{ $menu->name }} img" >
-                                </div>
+                    <div class="tab-style1">
+                        <ul class="nav nav-tabs justify-content-center mb-4" id="menuTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active font-weight-bold" id="cat-all-tab" data-bs-toggle="tab" href="#cat-all" role="tab" aria-controls="cat-all" aria-selected="true">
+                                    All Dishes
                                 </a>
-                                <div class="menu_product_info">
-                                    <div class="title">
-                                        <h5><a href="{{ route('menu.item',$menu->id) }}"> {{ $menu->name }}</a></h5>
-                                    </div>
-                                    <p>{!! $site_settings->currency_symbol !!}{{ number_format($menu->price, 2) }}</p>
-                                </div>                    
+                            </li>
+                            @foreach($menuCategories as $cat)
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold" id="cat-{{ $cat->id }}-tab" data-bs-toggle="tab" href="#cat-{{ $cat->id }}" role="tab" aria-controls="cat-{{ $cat->id }}" aria-selected="false">
+                                        {{ $cat->name }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+
+                        <div class="tab-content" id="menuTabsContent">
+                            <!-- ALL DISHES TAB -->
+                            <div class="tab-pane fade show active" id="cat-all" role="tabpanel" aria-labelledby="cat-all-tab">
+                                <div class="row">
+                                    @forelse ($allMenus as $menu)
+                                        <div class="d-flex col-lg-3 col-sm-6 mb-4">
+                                            <div class="single_product w-100 shadow-sm rounded overflow-hidden">
+                                                <div class="menu_product_img" style="height: 180px; overflow: hidden; background: #f8f9fa; position: relative;">
+                                                    <a href="{{ route('menu.item', $menu->id) }}">
+                                                        <img src="{{ $menu->image_url }}" alt="{{ $menu->name }}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';">
+                                                    </a>
+                                                    <div class="action_btn">
+                                                        <button type="button" class="btn btn-default btn-sm rounded-0 add-to-cart-quick"
+                                                            data-id="{{ $menu->id }}"
+                                                            data-name="{{ e($menu->name) }}"
+                                                            data-price="{{ $menu->price }}"
+                                                            data-img_src="{{ $menu->image_url }}">
+                                                            <i class="linearicons-cart me-1"></i> Add To Cart
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="menu_product_info p-3">
+                                                    @if($menu->category)
+                                                        <span class="badge bg-light text-danger mb-1 border">{{ $menu->category->name }}</span>
+                                                    @endif
+                                                    <div class="title">
+                                                        <h5 class="mb-1"><a href="{{ route('menu.item', $menu->id) }}" class="text-dark font-weight-bold">{{ $menu->name }}</a></h5>
+                                                    </div>
+                                                    <p class="mb-0 text-danger font-weight-bold">{!! $site_settings->currency_symbol !!}{{ number_format($menu->price, 2) }}</p>
+                                                </div>                    
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="col-12 text-center">
+                                            <p class="text-muted">No menu items available at the moment.</p>
+                                        </div>
+                                    @endforelse
+                                </div>
                             </div>
+
+                            <!-- PER CATEGORY TABS -->
+                            @foreach($menuCategories as $cat)
+                                <div class="tab-pane fade" id="cat-{{ $cat->id }}" role="tabpanel" aria-labelledby="cat-{{ $cat->id }}-tab">
+                                    <div class="row">
+                                        @forelse ($cat->menus as $menu)
+                                            <div class="d-flex col-lg-3 col-sm-6 mb-4">
+                                                <div class="single_product w-100 shadow-sm rounded overflow-hidden">
+                                                    <div class="menu_product_img" style="height: 180px; overflow: hidden; background: #f8f9fa; position: relative;">
+                                                        <a href="{{ route('menu.item', $menu->id) }}">
+                                                            <img src="{{ $menu->image_url }}" alt="{{ $menu->name }}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';">
+                                                        </a>
+                                                        <div class="action_btn">
+                                                            <button type="button" class="btn btn-default btn-sm rounded-0 add-to-cart-quick"
+                                                                data-id="{{ $menu->id }}"
+                                                                data-name="{{ e($menu->name) }}"
+                                                                data-price="{{ $menu->price }}"
+                                                                data-img_src="{{ $menu->image_url }}">
+                                                                <i class="linearicons-cart me-1"></i> Add To Cart
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="menu_product_info p-3">
+                                                        <span class="badge bg-light text-secondary mb-1 border">{{ $cat->name }}</span>
+                                                        <div class="title">
+                                                            <h5 class="mb-1"><a href="{{ route('menu.item', $menu->id) }}" class="text-dark font-weight-bold">{{ $menu->name }}</a></h5>
+                                                        </div>
+                                                        <p class="mb-0 text-danger font-weight-bold">{!! $site_settings->currency_symbol !!}{{ number_format($menu->price, 2) }}</p>
+                                                    </div>                    
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <div class="col-12 text-center">
+                                                <p class="text-muted">No items found in {{ $cat->name }}.</p>
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                        
-                        @empty
-                        <b> No Menu available. </b>
-                        @endforelse                       
-
-    
-
                     </div>
-
-
-
                 </div>
             </div>
+
+            <!-- VIEW FULL MENU BUTTON -->
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <a href="{{ route('menu') }}" class="btn btn-default rounded-0 px-4 py-2"><i class="linearicons-list me-1"></i> View Full Menu</a>
+                </div>
+            </div>
+
         </div>
     </div>
-    <!-- START SECTION OUR MENU -->
+    <!-- END SECTION OUR MENU -->
 @if(config('services.table_booking.allow'))
 <!-- START SECTION CTA -->
 <div class="section background_bg" data-img-src="/assets/images/cta_bg.jpg">

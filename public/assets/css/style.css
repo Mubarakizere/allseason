@@ -427,6 +427,7 @@ button:focus {
 	border-radius: 5px 0 0 5px;
 }
 .scrollup {
+	display: none !important;
 	background-color: #171717;
 	border-radius: 100%;
 	bottom: 20px;
