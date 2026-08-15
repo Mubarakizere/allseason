@@ -14,8 +14,7 @@
 
 <!-- SITE TITLE -->
 <title>{{ config('site.name') }} - @yield('title')</title>
-<!-- Favicon Icon -->
-<link rel="shortcut icon" type="image/x-icon" href="/favicon_io/favicon.ico" />
+@include('partials.pwa-head')
 
 <!-- Latest Bootstrap min CSS -->
 <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">

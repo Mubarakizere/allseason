@@ -41,7 +41,7 @@ return [
     ],
 
     'table_booking' => [
-        'allow' => env('ALLOW_TABLE_BOOKING', false),
+        'allow' => env('ALLOW_TABLE_BOOKING', true),
     ],
 
 ];

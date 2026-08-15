@@ -59,42 +59,36 @@ class OrderController extends Controller
             return Datatables::of($orders)
                     ->addIndexColumn()
                     ->addColumn('action', function ($order) {
-                        $viewButton = '<a href="'.route('admin.order.show', $order->id).'" class="btn btn-outline-primary btn-sm font-weight-bold mr-1 mb-1" title="View Order"><i class="fa fa-eye mr-1"></i> View</a>';
+                        $viewButton = '<a href="'.route('admin.order.show', $order->id).'" class="btn btn-sm btn-dark font-weight-bold" title="View Details"><i class="fas fa-eye me-1"></i> View</a>';
                         
-                        $printButton = '<button type="button" onclick="window.open(\''.route('admin.orders.receipt', $order->id).'\', \'_blank\', \'width=400,height=600\')" class="btn btn-outline-secondary btn-sm font-weight-bold mr-1 mb-1" title="Print Receipt"><i class="fa fa-print mr-1"></i> Print</button>';
+                        $printButton = '<button type="button" onclick="window.open(\''.route('admin.orders.receipt', $order->id).'\', \'_blank\', \'width=400,height=600\')" class="btn btn-sm btn-outline-secondary" title="Print Receipt"><i class="fas fa-print"></i></button>';
 
                         $completeButton = '';
                         if ($order->status === 'pending') {
-                            $completeButton = '<form action="'.route('admin.orders.update', $order->id).'" method="POST" style="display:inline;" class="mr-1 mb-1">'.csrf_field().'<input type="hidden" name="status" value="completed"><button type="submit" class="btn btn-success btn-sm font-weight-bold" title="Mark as Completed"><i class="fa fa-check mr-1"></i> Complete</button></form>';
+                            $completeButton = '<form action="'.route('admin.orders.update', $order->id).'" method="POST" style="display:inline;">'.csrf_field().'<input type="hidden" name="status" value="completed"><button type="submit" class="btn btn-sm btn-success" title="Mark Complete"><i class="fas fa-check"></i></button></form>';
                         }
 
-                        $deleteButton = Auth::user()->role == "global_admin" ? '<button type="button" class="btn btn-outline-danger btn-sm font-weight-bold mb-1" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="'.$order->id.'" title="Delete Order"><i class="fa fa-trash mr-1"></i> Delete</button>' : '';
+                        $deleteButton = Auth::user()->role == "global_admin" ? '<button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="'.$order->id.'" title="Delete Order"><i class="fas fa-trash"></i></button>' : '';
                                             
-                        return '<div class="d-flex align-items-center flex-wrap" style="gap: 4px;">' . $viewButton . $printButton . $completeButton . $deleteButton . '</div>';
+                        return '<div class="d-flex align-items-center gap-1">' . $viewButton . $printButton . $completeButton . $deleteButton . '</div>';
                     })
                     ->editColumn('order_no', function ($order) {
                         $diff = $order->created_at->diffForHumans();
-                        return '<div class="font-weight-bold text-dark" style="font-size: 0.95rem;">#' . $order->order_no . '</div><small class="text-muted"><i class="fa fa-clock-o mr-1"></i> ' . $diff . '</small>';
+                        return '<div class="fw-bold text-dark">#' . $order->order_no . '</div><small class="text-muted" style="font-size:11px;">' . $diff . '</small>';
                     })
                     ->addColumn('details', function ($order) {
                         if ($order->order_type === 'instore') {
-                            $tableName = $order->restaurantTable ? $order->restaurantTable->name : 'N/A';
-                            $waiterName = $order->waiter ? $order->waiter->name : 'N/A';
-                            return '<div class="font-weight-bold text-dark"><i class="fa fa-table text-primary mr-1"></i> ' . e($tableName) . '</div><small class="text-muted"><i class="fa fa-user mr-1"></i> Waiter: ' . e($waiterName) . '</small>';
+                            $tableName = $order->restaurantTable ? $order->restaurantTable->name : 'Walk-in';
+                            $waiterName = $order->waiter ? $order->waiter->name : '';
+                            return '<div class="fw-semibold text-dark"><i class="fas fa-utensils text-muted me-1" style="font-size:11px;"></i> ' . e($tableName) . '</div>' . ($waiterName ? '<small class="text-muted" style="font-size:11px;">Waiter: ' . e($waiterName) . '</small>' : '');
                         } else {
-                            $custName = $order->customer ? $order->customer->first_name . ' ' . $order->customer->last_name : 'Guest';
-                            $phone = $order->customer ? $order->customer->phone : '';
-                            return '<div class="font-weight-bold text-dark"><i class="fa fa-user text-info mr-1"></i> ' . e($custName) . '</div>' . ($phone ? '<small class="text-muted"><i class="fa fa-phone mr-1"></i> ' . e($phone) . '</small>' : '');
+                            $custName = $order->customer ? $order->customer->first_name . ' ' . $order->customer->last_name : 'Customer';
+                            return '<div class="fw-semibold text-dark"><i class="fas fa-user text-muted me-1" style="font-size:11px;"></i> ' . e($custName) . '</div><small class="text-muted" style="font-size:11px;">' . ucfirst($order->order_type) . '</small>';
                         }
                     })
                     ->addColumn('items_preview', function ($order) {
                         $count = $order->orderItems->sum('quantity');
-                        $itemNames = $order->orderItems->take(2)->pluck('menu_name')->toArray();
-                        $previewStr = implode(', ', $itemNames);
-                        if ($order->orderItems->count() > 2) {
-                            $previewStr .= '...';
-                        }
-                        return '<div><span class="badge badge-light border font-weight-bold text-dark">' . $count . ' item' . ($count === 1 ? '' : 's') . '</span></div><small class="text-muted d-block text-truncate" style="max-width: 180px;" title="' . e($previewStr) . '">' . e($previewStr) . '</small>';
+                        return '<span class="badge bg-light text-dark border fw-normal" style="font-size:11.5px; padding: 4px 8px;">' . $count . ' ' . ($count === 1 ? 'item' : 'items') . '</span>';
                     })
                     ->editColumn('created_at', function ($order) {
                         return $order->created_at->format('g:i A - j M, Y');
@@ -102,34 +96,26 @@ class OrderController extends Controller
                     ->editColumn('total_price', function ($order) {
                         $site_settings = SiteSetting::latest()->first();
                         $currency_symbol = $site_settings->currency_symbol ?? config('site.currency_symbol');
-                        return '<span class="font-weight-bold text-dark" style="font-size: 1rem;">' . html_entity_decode($currency_symbol) . number_format($order->total_price, 2) . '</span>';
+                        return '<span class="fw-bold text-dark">' . html_entity_decode($currency_symbol) . number_format($order->total_price, 2) . '</span>';
                     })
                     ->addColumn('payment', function ($order) {
                         $method = $order->payment_method ? e($order->payment_method) : 'Pending';
-                        $html = '<div class="font-weight-bold text-dark" style="font-size: 0.88rem;"><i class="fa fa-credit-card text-muted mr-1"></i> ' . $method . '</div>';
-                        if ($order->order_type == 'online' || $order->order_type == 'delivery' || $order->order_type == 'pickup') {
-                            if ($order->status_online_pay == 'paid') {
-                                $html .= '<span class="badge badge-success" style="font-size:0.72rem;">Paid</span>';
-                            } else {
-                                $html .= '<span class="badge badge-danger" style="font-size:0.72rem;">Unpaid</span>';
-                            }
-                        }
-                        return $html;
+                        return '<span class="text-secondary" style="font-size: 12.5px;">' . $method . '</span>';
                     })
                     ->editColumn('status', function ($order) {
                         switch ($order->status) {
                             case 'pending':
-                                return '<span class="badge badge-warning text-dark font-weight-bold px-3 py-2" style="border-radius: 20px;"><i class="fa fa-clock-o mr-1"></i> Pending</span>';
+                                return '<span class="badge bg-warning text-dark fw-semibold px-2 py-1" style="font-size: 11px;">Pending</span>';
                             case 'completed':
-                                return '<span class="badge badge-success text-white font-weight-bold px-3 py-2" style="border-radius: 20px;"><i class="fa fa-check mr-1"></i> Completed</span>';
+                                return '<span class="badge bg-success text-white fw-semibold px-2 py-1" style="font-size: 11px;">Completed</span>';
                             case 'cancelled':
-                                return '<span class="badge badge-danger text-white font-weight-bold px-3 py-2" style="border-radius: 20px;"><i class="fa fa-times mr-1"></i> Cancelled</span>';
+                                return '<span class="badge bg-danger text-white fw-semibold px-2 py-1" style="font-size: 11px;">Cancelled</span>';
                             default:
-                                return '<span class="badge badge-secondary font-weight-bold px-3 py-2" style="border-radius: 20px;">' . ucfirst($order->status) . '</span>';
+                                return '<span class="badge bg-secondary text-white fw-semibold px-2 py-1" style="font-size: 11px;">' . ucfirst($order->status) . '</span>';
                         }
                     })
                     ->editColumn('order_type', function ($order) {
-                        return '<span class="badge badge-light border font-weight-bold">' . ucfirst($order->order_type) . '</span>';
+                        return '<span class="badge bg-light text-dark border">' . ucfirst($order->order_type) . '</span>';
                     })                   
                     ->rawColumns(['order_no', 'details', 'items_preview', 'total_price', 'payment', 'status', 'order_type', 'action'])
                     ->make(true);
@@ -237,6 +223,9 @@ class OrderController extends Controller
 
             // Deduct stock for the items
             $this->deductStockForOrder($order, 'POS');
+
+            // Deduct raw material recipe ingredients from kitchen stock
+            \App\Services\KitchenStockService::deductRecipeIngredientsForOrder($order);
         }
 
         // Clear the cart

@@ -6,7 +6,7 @@ return [
     'email' => env('MAIL_FROM_ADDRESS', 'test@example.com'),
     'url' => env('APP_URL', 'http://localhost'),
     'address' => env('ADDRESS', 'Test Address'),
-    'country' => 'United States',
+    'country' => 'Rwanda',
     'currency_symbol' => 'RWF',
     'currency_code' => 'RWF',
 ];

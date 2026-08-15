@@ -5,10 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>@yield('title')</title>
-  <link rel="stylesheet" href="/admin_resources/vendors/typicons.font/font/typicons.css">
-  <link rel="stylesheet" href="/admin_resources/vendors/css/vendor.bundle.base.css">
-  <link rel="stylesheet" href="/admin_resources/css/vertical-layout-light/style.css">
-  <link rel="shortcut icon" href="/favicon_io/favicon.ico" />
+  @include('partials.pwa-head')
 </head>
 
 <body>
@@ -18,8 +15,9 @@
         <div class="row w-100 mx-0">
           <div class="col-lg-6 mx-auto">
             <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-              <div class="brand-logo">
-                <h3 class="font-weight-bold" style="color: #4a4a4a;">All The Season Garden</h3>
+              <div class="brand-logo text-center mb-4">
+                <img src="/favicon_io/android-chrome-192x192.png" alt="All Season Garden" style="width: 64px; height: 64px; border-radius: 14px; object-fit: cover; margin-bottom: 12px; box-shadow: 0 6px 16px rgba(0,0,0,0.12);">
+                <h3 class="font-weight-bold" style="color: #2d4a3e; font-size: 1.25rem; margin: 0;">All Season Garden</h3>
               </div>
 
               @yield('content')

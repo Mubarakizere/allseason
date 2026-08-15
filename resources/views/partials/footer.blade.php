@@ -35,7 +35,8 @@
                         <ul class="widget_links">
                             <li><a href="{{ route('home') }}">Home</a></li>
                             <li><a href="{{ route('menu') }}">Our Menu</a></li>
-                            <li><a href="{{ route('about') }}">About us</a> </li>
+                            <li><a href="{{ route('home') }}#book-table">Book a Table</a></li>
+                            <li><a href="{{ route('about') }}">About us</a></li>
                             <li><a href="{{ route('contact') }}">Contact us</a></li>
                             
                             @if($whatsAppNumber)

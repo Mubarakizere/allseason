@@ -397,7 +397,7 @@
 
 
     <!-- START SECTION BOOK TABLE -->
-    <div class="section pt-0 small_pb">
+    <div class="section pt-0 small_pb" id="book-table">
         <div class="container">
             <div class="row">
                 <div class="col-12">

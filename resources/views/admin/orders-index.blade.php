@@ -1,132 +1,209 @@
-
 @extends('layouts.admin')
 
-@push('styles')
-    <!-- base:css -->
-    <link rel="stylesheet" href="/admin_resources/vendors/typicons.font/font/typicons.css">
-    <link rel="stylesheet" href="/admin_resources/vendors/css/vendor.bundle.base.css">
-    <link rel="stylesheet" href="/admin_resources/css/vertical-layout-light/style.css">
-    <!-- DataTables CSS -->
+@section('title', 'Manage Orders — All The Season Garden')
 
-    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <link rel="stylesheet" href="/admin_resources/css/small-box.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <style>
-        .orders-container {
-            font-family: 'Inter', sans-serif;
-        }
-        .premium-card {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border: 1px solid #f0f0f0;
-            overflow: hidden;
-        }
-        .premium-card .card-header {
-            background: transparent;
-            border-bottom: 2px dashed #eee;
-            padding: 20px 25px;
-        }
-        .premium-card .card-title {
-            font-weight: 800;
-            color: #333;
-            font-size: 1.25rem;
-            text-transform: capitalize;
-        }
-        .filter-pills .btn {
-            border-radius: 20px !important;
-            padding: 6px 16px;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter {
-            padding: 20px 25px 10px 25px;
-        }
-        table.dataTable {
-            border-collapse: separate !important;
-            border-spacing: 0;
-            width: 100% !important;
-            border: none !important;
-        }
-        table.dataTable thead th {
-            border-bottom: 2px solid #eee !important;
-            border-top: none !important;
-            color: #555;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
-            padding: 16px 20px !important;
-        }
-        table.dataTable tbody td {
-            padding: 16px 20px !important;
-            vertical-align: middle;
-            border-bottom: 1px solid #f5f5f5 !important;
-            border-top: none !important;
-            color: #334155;
-        }
-        table.dataTable tbody tr:hover {
-            background-color: #f8fafc !important;
-        }
-        .dataTables_info, .dataTables_paginate {
-            padding: 20px 25px;
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            border-radius: 8px !important;
-            border: 1px solid #eee !important;
-            background: white !important;
-            color: #333 !important;
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-            background: #28a745 !important;
-            color: white !important;
-            border-color: #28a745 !important;
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background: #f8f9fa !important;
-            color: #333 !important;
-            border-color: #ddd !important;
-        }
-    </style>
+@push('styles')
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+
+<style>
+    .orders-wrap {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Page Header */
+    .orders-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .orders-title-group h1 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 4px;
+        letter-spacing: -0.02em;
+    }
+    .orders-title-group p {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 0;
+    }
+    .orders-btn-pos {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: #dc2626;
+        color: #ffffff !important;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none !important;
+        transition: background 0.15s ease;
+    }
+    .orders-btn-pos:hover {
+        background: #b91c1c;
+    }
+
+    /* Card Container */
+    .orders-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        margin-top: 24px;
+        overflow: hidden;
+    }
+    .orders-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .orders-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .filter-tab-link {
+        padding: 5px 12px;
+        border-radius: 20px;
+        background: #f9fafb;
+        color: #4b5563 !important;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none !important;
+        border: 1px solid #e5e7eb;
+        transition: all 0.15s ease;
+    }
+    .filter-tab-link:hover {
+        background: #f3f4f6;
+        color: #111827 !important;
+    }
+    .filter-tab-link.active {
+        background: #111827;
+        color: #ffffff !important;
+        border-color: #111827;
+    }
+
+    /* DataTables Custom Styling */
+    .dataTables_wrapper {
+        padding: 0;
+    }
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        padding: 14px 20px 10px;
+        font-size: 13px;
+        color: #6b7280;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 13px;
+        outline: none;
+        margin-left: 8px;
+    }
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #dc2626;
+    }
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 13px;
+        outline: none;
+    }
+    table.dataTable {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        border: none !important;
+        margin: 0 !important;
+    }
+    table.dataTable<thead>th {
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb !important;
+        border-top: none !important;
+        color: #374151;
+        font-weight: 600;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 10px 18px !important;
+    }
+    table.dataTable<tbody>td {
+        padding: 12px 18px !important;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6 !important;
+        border-top: none !important;
+        color: #111827;
+        font-size: 13px;
+    }
+    table.dataTable<tbody>tr:hover {
+        background-color: #f9fafb !important;
+    }
+    .dataTables_info,
+    .dataTables_paginate {
+        padding: 12px 20px !important;
+        font-size: 12.5px;
+        color: #6b7280;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 6px !important;
+        border: 1px solid #e5e7eb !important;
+        background: #ffffff !important;
+        color: #374151 !important;
+        font-size: 12px !important;
+        padding: 3px 9px !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #111827 !important;
+        color: #ffffff !important;
+        border-color: #111827 !important;
+        box-shadow: none !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #f3f4f6 !important;
+        color: #111827 !important;
+    }
+</style>
 @endpush
 
 @push('scripts')
-<script src="/admin_resources/vendors/js/vendor.bundle.base.js"></script>
-<script src="/admin_resources/js/off-canvas.js"></script>
-<script src="/admin_resources/js/hoverable-collapse.js"></script>
-<script src="/admin_resources/js/template.js"></script>
-<script src="/admin_resources/js/settings.js"></script>
-<script src="/admin_resources/js/todolist.js"></script>
-<script src="/admin_resources/vendors/progressbar.js/progressbar.min.js"></script>
-<script src="/admin_resources/vendors/chart.js/Chart.min.js"></script>
-<script src="/admin_resources/js/dashboard.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
 <script type="text/javascript">
     $(function () {
-      var table = $('.data-table').DataTable({
-          processing: true,
-          serverSide: true,
-          ajax: "{{ route('admin.orders.index', ['filter' => $filter]) }}",
-          columns: [
-            { data: 'order_no', name: 'order_no' },
-            { data: 'details', name: 'details', orderable: false, searchable: false },
-            { data: 'items_preview', name: 'items_preview', orderable: false, searchable: false },
-            { data: 'total_price', name: 'total_price' },
-            { data: 'payment', name: 'payment', orderable: false, searchable: false },
-            { data: 'status', name: 'status' },
-            { data: 'action', name: 'action', orderable: false, searchable: false },
-          ]
-      });
+        var table = $('.data-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('admin.orders.index', ['filter' => $filter]) }}",
+            columns: [
+                { data: 'order_no', name: 'order_no', width: '12%' },
+                { data: 'details', name: 'details', width: '22%' },
+                { data: 'items_preview', name: 'items_preview', width: '12%' },
+                { data: 'total_price', name: 'total_price', width: '14%' },
+                { data: 'payment', name: 'payment', width: '14%' },
+                { data: 'status', name: 'status', width: '12%' },
+                { data: 'action', name: 'action', orderable: false, searchable: false, width: '14%' },
+            ]
+        });
     });
- 
+
     $(document).ready(function() {
         $('#deleteModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);  
@@ -135,7 +212,7 @@
             $('#deleteForm').attr('action', actionUrl);
         });
 
-        // Auto-print polling
+        // Auto-print polling every 10 seconds
         setInterval(function() {
             $.ajax({
                 url: "{{ route('admin.orders.unprinted') }}",
@@ -143,7 +220,7 @@
                 success: function(response) {
                     if (response.success && response.order_id) {
                         let receiptUrl = "{{ url('admin/orders') }}/" + response.order_id + "/receipt?kitchen=1";
-                        let printWindow = window.open(receiptUrl, '_blank', 'width=400,height=600');
+                        window.open(receiptUrl, '_blank', 'width=400,height=600');
                         
                         $.ajax({
                             url: "{{ url('admin/orders') }}/" + response.order_id + "/mark-printed",
@@ -157,45 +234,62 @@
                     }
                 }
             });
-        }, 10000); // Poll every 10 seconds
+        }, 10000);
     });
 </script>
 @endpush
 
-@section('title', 'Admin - Manage Orders')
-
 @section('content')
-
-<div class="main-panel orders-container">
-    <div class="content-wrapper">
- 
+<div class="content-wrapper orders-wrap">
+    
     @include('partials.message-bag')
 
+    {{-- Page Header --}}
+    <div class="orders-header">
+        <div class="orders-title-group">
+            <h1>Order Management</h1>
+            <p>High-level overview of orders. Click <strong>View</strong> to inspect full details.</p>
+        </div>
+        <div>
+            <a href="{{ route('admin.pos.index') }}" class="orders-btn-pos">
+                <i class="fas fa-plus me-1"></i> New Order (POS)
+            </a>
+        </div>
+    </div>
+
+    {{-- Stats Row --}}
     @include('partials.order-stats')
 
-      <div class="premium-card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <h5 class="card-title mb-0">{{ ucfirst($filter ?: 'All') }} Orders</h5>
-            <div class="filter-pills d-flex flex-wrap gap-1">
-                <a href="{{ route('admin.orders.index') }}" class="btn btn-sm {{ empty($filter) ? 'btn-success font-weight-bold' : 'btn-light' }}">All Orders</a>
-                <a href="{{ route('admin.orders.index', ['filter' => 'pending']) }}" class="btn btn-sm {{ $filter == 'pending' ? 'btn-warning font-weight-bold text-dark' : 'btn-light' }}">Pending</a>
-                <a href="{{ route('admin.orders.index', ['filter' => 'instore']) }}" class="btn btn-sm {{ $filter == 'instore' ? 'btn-primary font-weight-bold' : 'btn-light' }}">In-Store</a>
-                <a href="{{ route('admin.orders.index', ['filter' => 'delivery']) }}" class="btn btn-sm {{ $filter == 'delivery' ? 'btn-info font-weight-bold' : 'btn-light' }}">Delivery</a>
-                <a href="{{ route('admin.orders.index', ['filter' => 'completed']) }}" class="btn btn-sm {{ $filter == 'completed' ? 'btn-success font-weight-bold' : 'btn-light' }}">Completed</a>
+    {{-- Orders Card & Table --}}
+    <div class="orders-card">
+        <div class="orders-card-header">
+            <h3 class="orders-card-title">{{ ucfirst($filter ?: 'All') }} Orders</h3>
+            <div class="filter-tabs">
+                <a href="{{ route('admin.orders.index') }}" 
+                   class="filter-tab-link {{ empty($filter) ? 'active' : '' }}">All</a>
+                <a href="{{ route('admin.orders.index', ['filter' => 'pending']) }}" 
+                   class="filter-tab-link {{ $filter == 'pending' ? 'active' : '' }}">Pending</a>
+                <a href="{{ route('admin.orders.index', ['filter' => 'instore']) }}" 
+                   class="filter-tab-link {{ $filter == 'instore' ? 'active' : '' }}">Dine-in</a>
+                <a href="{{ route('admin.orders.index', ['filter' => 'delivery']) }}" 
+                   class="filter-tab-link {{ $filter == 'delivery' ? 'active' : '' }}">Delivery</a>
+                <a href="{{ route('admin.orders.index', ['filter' => 'completed']) }}" 
+                   class="filter-tab-link {{ $filter == 'completed' ? 'active' : '' }}">Completed</a>
             </div>
         </div>
+
         <div class="card-body p-0">
-            <div class="table-responsive pb-4">
+            <div class="table-responsive">
                 <table class="table data-table" id="orders-table">
                     <thead>
                         <tr>
-                            <th>Order No.</th>
-                            <th>Service Details</th>
+                            <th>Order</th>
+                            <th>Details</th>
                             <th>Items</th>
-                            <th>Total Price</th>
+                            <th>Total</th>
                             <th>Payment</th>
                             <th>Status</th>
-                            <th style="min-width: 210px;">Actions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -205,18 +299,18 @@
 
     @if ($loggedInUser->role == "global_admin")
         <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title font-weight-bold" id="deleteModalLabel">Confirm Deletion</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> <i class="fas fa-times"></i></button>
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0" style="border-radius: 10px;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title font-weight-bold">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body text-center py-4">
+                    <div class="modal-body text-center py-4" style="font-size: 13.5px; color: #4b5563;">
                         Are you sure you want to delete this order? This action cannot be undone.
                     </div>
-                    <div class="modal-footer justify-content-center border-0 pb-4">
-                        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <div class="modal-footer justify-content-center border-0 pt-0 pb-4">
+                        <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
                         <form id="deleteForm" method="POST">
                             @csrf
                             @method('DELETE')
@@ -228,13 +322,5 @@
         </div>    
     @endif
 
-    </div>
-    <!-- content-wrapper ends -->
-    @include('partials.admin.footer')
-  </div>
-  <!-- main-panel ends -->
+</div>
 @endsection
-
-
-
- 

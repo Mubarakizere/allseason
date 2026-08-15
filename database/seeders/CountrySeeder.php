@@ -4,43 +4,25 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Country;
+use App\Models\SiteSetting;
 
 class CountrySeeder extends Seeder
 {
     public function run(): void
     {
-        $data = [
-            [
-                'name'            => 'Ghana',
-                'iso_code'        => 'GH',
-                'currency_code'   => 'GHS',
-                'currency_symbol' => '₵',    
-            ],
-            [
-                'name'            => 'Nigeria',
-                'iso_code'        => 'NG',
-                'currency_code'   => 'NGN',
-                'currency_symbol' => '₦',    
-            ],
-            [
-                'name'            => 'United Kingdom',
-                'iso_code'        => 'GB',
-                'currency_code'   => 'GBP',
-                'currency_symbol' => '£',    
-            ],
-            [
-                'name'            => 'United States',
-                'iso_code'        => 'US',
-                'currency_code'   => 'USD',
-                'currency_symbol' => '$',    
-            ]
-        ];
+        Country::truncate();
 
-        foreach ($data as $row) {
-            Country::updateOrCreate(
-                ['iso_code' => $row['iso_code']],
-                $row
-            );
-        }
+        Country::create([
+            'name'            => 'Rwanda',
+            'iso_code'        => 'RW',
+            'currency_code'   => 'RWF',
+            'currency_symbol' => 'RWF',
+        ]);
+
+        $setting = SiteSetting::firstOrNew();
+        $setting->country         = 'Rwanda';
+        $setting->currency_code   = 'RWF';
+        $setting->currency_symbol = 'RWF';
+        $setting->save();
     }
 }

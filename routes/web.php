@@ -352,11 +352,44 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
         Route::patch('banners/{id}/toggle-status', [BannerController::class, 'toggleStatus'])->name('admin.banners.toggle-status');
 
 
-        //Admin Manage Users routes
+        // Admin Manage Users routes
         Route::get('users', [UserAdminController::class, 'index'])->name('admin.users.index');
         Route::post('users', [UserAdminController::class, 'store'])->name('admin.users.store');
         Route::put('users/{id}', [UserAdminController::class, 'update'])->name('admin.users.update');
         Route::delete('users/{id}', [UserAdminController::class, 'destroy'])->name('admin.users.destroy');
+
+        // Admin Payroll Management
+        Route::resource('payroll', \App\Http\Controllers\Admin\PayrollController::class, ['as' => 'admin'])->except(['create', 'show', 'edit']);
+        Route::get('payroll/{id}/payslip', [\App\Http\Controllers\Admin\PayrollController::class, 'payslip'])->name('admin.payroll.payslip');
+
+        // Independent Kitchen Management Module
+        Route::get('kitchen/kot', [\App\Http\Controllers\Admin\KitchenController::class, 'kot'])->name('admin.kitchen.kot');
+        Route::get('kitchen/ingredients', [\App\Http\Controllers\Admin\KitchenController::class, 'ingredients'])->name('admin.kitchen.ingredients');
+        Route::post('kitchen/ingredients', [\App\Http\Controllers\Admin\KitchenController::class, 'storeIngredient'])->name('admin.kitchen.ingredients.store');
+        Route::put('kitchen/ingredients/{id}', [\App\Http\Controllers\Admin\KitchenController::class, 'updateIngredient'])->name('admin.kitchen.ingredients.update');
+        Route::delete('kitchen/ingredients/{id}', [\App\Http\Controllers\Admin\KitchenController::class, 'destroyIngredient'])->name('admin.kitchen.ingredients.destroy');
+
+        Route::get('kitchen/recipes', [\App\Http\Controllers\Admin\KitchenController::class, 'recipes'])->name('admin.kitchen.recipes');
+        Route::post('kitchen/recipes', [\App\Http\Controllers\Admin\KitchenController::class, 'storeRecipe'])->name('admin.kitchen.recipes.store');
+        Route::delete('kitchen/recipes/{id}', [\App\Http\Controllers\Admin\KitchenController::class, 'destroyRecipe'])->name('admin.kitchen.recipes.destroy');
+
+        Route::get('kitchen/production', [\App\Http\Controllers\Admin\KitchenController::class, 'production'])->name('admin.kitchen.production');
+        Route::post('kitchen/production', [\App\Http\Controllers\Admin\KitchenController::class, 'storeProduction'])->name('admin.kitchen.production.store');
+
+        Route::get('kitchen/reports', [\App\Http\Controllers\Admin\KitchenController::class, 'reports'])->name('admin.kitchen.reports');
+
+        // Independent Bar Management Module
+        Route::get('bar/inventory', [\App\Http\Controllers\Admin\BarController::class, 'inventory'])->name('admin.bar.inventory');
+        Route::post('bar/inventory', [\App\Http\Controllers\Admin\BarController::class, 'storeDrink'])->name('admin.bar.inventory.store');
+        Route::put('bar/inventory/{id}', [\App\Http\Controllers\Admin\BarController::class, 'updateDrink'])->name('admin.bar.inventory.update');
+        Route::delete('bar/inventory/{id}', [\App\Http\Controllers\Admin\BarController::class, 'destroyDrink'])->name('admin.bar.inventory.destroy');
+
+        Route::get('bar/recipes', [\App\Http\Controllers\Admin\BarController::class, 'recipes'])->name('admin.bar.recipes');
+        Route::post('bar/recipes', [\App\Http\Controllers\Admin\BarController::class, 'storeRecipe'])->name('admin.bar.recipes.store');
+        Route::delete('bar/recipes/{id}', [\App\Http\Controllers\Admin\BarController::class, 'destroyRecipe'])->name('admin.bar.recipes.destroy');
+
+        Route::get('bar/tickets', [\App\Http\Controllers\Admin\BarController::class, 'tickets'])->name('admin.bar.tickets');
+        Route::get('bar/reports', [\App\Http\Controllers\Admin\BarController::class, 'reports'])->name('admin.bar.reports');
 
     });
         

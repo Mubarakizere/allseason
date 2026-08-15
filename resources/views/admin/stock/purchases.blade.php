@@ -1,42 +1,186 @@
 @extends('layouts.admin')
 
+@section('title', 'Stock Purchases — All The Season Garden')
+
 @push('styles')
-    <link rel="stylesheet" href="/admin_resources/vendors/typicons.font/font/typicons.css">
-    <link rel="stylesheet" href="/admin_resources/vendors/css/vendor.bundle.base.css">
-    <link rel="stylesheet" href="/admin_resources/css/vertical-layout-light/style.css">
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+
+<style>
+    .pur-wrap {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Page Header */
+    .pur-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .pur-title-group h1 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 4px;
+        letter-spacing: -0.02em;
+    }
+    .pur-title-group p {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 0;
+    }
+    .btn-add-pur {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: #dc2626;
+        color: #ffffff !important;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none !important;
+        border: none;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+    .btn-add-pur:hover {
+        background: #b91c1c;
+    }
+
+    /* Card & Table */
+    .pur-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .pur-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .pur-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+
+    /* DataTables Custom Styling */
+    .dataTables_wrapper {
+        padding: 0;
+    }
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        padding: 14px 20px 10px;
+        font-size: 13px;
+        color: #6b7280;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 13px;
+        outline: none;
+        margin-left: 8px;
+    }
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #dc2626;
+    }
+    table.dataTable {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        border: none !important;
+        margin: 0 !important;
+    }
+    table.dataTable<thead>th {
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb !important;
+        border-top: none !important;
+        color: #374151;
+        font-weight: 600;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 10px 18px !important;
+    }
+    table.dataTable<tbody>td {
+        padding: 12px 18px !important;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6 !important;
+        border-top: none !important;
+        color: #111827;
+        font-size: 13px;
+    }
+    table.dataTable<tbody>tr:hover {
+        background-color: #f9fafb !important;
+    }
+    .dataTables_info,
+    .dataTables_paginate {
+        padding: 12px 20px !important;
+        font-size: 12.5px;
+        color: #6b7280;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 6px !important;
+        border: 1px solid #e5e7eb !important;
+        background: #ffffff !important;
+        color: #374151 !important;
+        font-size: 12px !important;
+        padding: 3px 9px !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #111827 !important;
+        color: #ffffff !important;
+        border-color: #111827 !important;
+        box-shadow: none !important;
+    }
+</style>
 @endpush
 
 @push('scripts')
-<script src="/admin_resources/vendors/js/vendor.bundle.base.js"></script>
-<script src="/admin_resources/js/off-canvas.js"></script>
-<script src="/admin_resources/js/hoverable-collapse.js"></script>
-<script src="/admin_resources/js/template.js"></script>
-<script src="/admin_resources/js/settings.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
+        $('#purchases-table').DataTable({
+            paging: true,
+            searching: true,
+            lengthChange: false,
+            pageLength: 15,
+            order: [],
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search purchases..."
+            }
+        });
+
         let itemIndex = 1;
         $('#addItemBtn').on('click', function() {
             let row = `
-                <div class="row mt-2 item-row">
+                <div class="row g-2 mt-2 item-row align-items-center">
                     <div class="col-md-5">
-                        <select name="items[${itemIndex}][stock_item_id]" class="form-control" required>
-                            <option value="">Select Item</option>
+                        <select name="items[${itemIndex}][stock_item_id]" class="form-select" required style="font-size: 13px;">
+                            <option value="">Select Item...</option>
                             @foreach($items as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }} ({{ $item->unit }})</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <input type="number" step="0.01" name="items[${itemIndex}][quantity]" class="form-control" placeholder="Qty" required>
+                        <input type="number" step="0.01" name="items[${itemIndex}][quantity]" class="form-control" placeholder="Qty" required style="font-size: 13px;">
                     </div>
                     <div class="col-md-3">
-                        <input type="number" step="0.01" name="items[${itemIndex}][unit_cost]" class="form-control" placeholder="Unit Cost" required>
+                        <input type="number" step="0.01" name="items[${itemIndex}][unit_cost]" class="form-control" placeholder="Unit Cost" required style="font-size: 13px;">
                     </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-danger btn-sm remove-item-btn"><i class="fa fa-times"></i></button>
+                    <div class="col-md-1 text-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -48,164 +192,188 @@
             $(this).closest('.item-row').remove();
         });
 
-       $('.delete-btn').on('click', function() {
-           let id = $(this).data('id');
-           let actionUrl = "{{ route('admin.stock-purchases.destroy', ':id') }}".replace(':id', id);
-           $('#deleteForm').attr('action', actionUrl);
-       });
-   });
+        $(document).on('click', '.delete-btn', function() {
+            let id = $(this).data('id');
+            let actionUrl = "{{ route('admin.stock-purchases.destroy', ':id') }}".replace(':id', id);
+            $('#deleteForm').attr('action', actionUrl);
+        });
+    });
 </script>
 @endpush
 
-@section('title', 'Admin - Stock - Purchases')
-
 @section('content')
-<div class="main-panel">
-    <div class="content-wrapper">
-      @include('partials.message-bag')
+<div class="content-wrapper pur-wrap">
+    
+    @include('partials.message-bag')
 
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Stock Purchases (In)</span>
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createModal">
-                    New Purchase
-                </button>
-            </div>
-            <div class="card-body">
-                <table class="table table-responsive">
+    {{-- Page Header --}}
+    <div class="pur-header">
+        <div class="pur-title-group">
+            <h1>Stock Purchases & Goods Received (IN)</h1>
+            <p>Record inbound inventory purchases, vendor PO receipts, and unit cost tracking.</p>
+        </div>
+        <button class="btn-add-pur" data-bs-toggle="modal" data-bs-target="#createModal">
+            <i class="fas fa-plus me-1"></i> New Purchase Entry
+        </button>
+    </div>
+
+    {{-- Purchases Card --}}
+    <div class="pur-card">
+        <div class="pur-card-header">
+            <h3 class="pur-card-title">All Stock Purchases ({{ $purchases->count() }})</h3>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table" id="purchases-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Date</th>
-                            <th>Supplier</th>
-                            <th>Ref #</th>
+                            <th>Purchase Date</th>
+                            <th>Supplier / Vendor</th>
+                            <th>Reference #</th>
                             <th>Total Amount</th>
-                            <th>Created By</th>
-                            <th>Actions</th>
+                            <th>Recorded By</th>
+                            <th style="min-width: 80px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($purchases as $purchase)
-                        <tr>
-                            <td>{{ $purchase->id }}</td>
-                            <td>{{ $purchase->date }}</td>
-                            <td>{{ $purchase->supplier->name ?? 'N/A' }}</td>
-                            <td>{{ $purchase->reference_no }}</td>
-                            <td>{{ number_format($purchase->total_amount, 2) }}</td>
-                            <td>{{ $purchase->createdBy->first_name ?? 'N/A' }}</td>
-                            <td>
-                                <button class="m-2 btn btn-danger btn-sm delete-btn" 
-                                    data-id="{{ $purchase->id }}" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#deleteModal"><i class="fa fa-trash"></i></button>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ $purchase->date }}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ $purchase->supplier->name ?? 'N/A' }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border font-monospace" style="font-size: 11px;">
+                                        {{ $purchase->reference_no ?: '—' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong class="text-success">{!! $site_settings->currency_symbol !!}{{ number_format($purchase->total_amount, 2) }}</strong>
+                                </td>
+                                <td>
+                                    <small class="text-dark fw-semibold"><i class="fas fa-user-circle me-1 text-muted"></i> {{ $purchase->createdBy->first_name ?? 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger delete-btn" 
+                                        data-id="{{ $purchase->id }}" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteModal"
+                                        title="Delete Purchase Record">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
                         @empty
-                        <tr>
-                            <td colspan="7" class="text-center">No purchases recorded.</td>
-                        </tr>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">No stock purchases recorded.</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
-   
-    <!-- Create Modal -->
-    <div class="modal fade" id="createModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <form method="POST" action="{{ route('admin.stock-purchases.store') }}">
+    </div>
+
+    {{-- Create Modal --}}
+    <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <form method="POST" action="{{ route('admin.stock-purchases.store') }}" style="width: 100%;">
                 @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Record Stock Purchase</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-content border-0" style="border-radius: 10px;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title font-weight-bold">Record Stock Purchase</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 form-group">
-                                <label>Date</label>
-                                <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                    <div class="modal-body py-3">
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label class="fw-semibold mb-1" style="font-size: 12px;">Purchase Date *</label>
+                                <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required style="font-size: 13px;">
                             </div>
-                            <div class="col-md-6 form-group">
-                                <label>Supplier</label>
-                                <select name="supplier_id" class="form-control">
-                                    <option value="">Select Supplier</option>
+                            <div class="col-md-6 mb-2">
+                                <label class="fw-semibold mb-1" style="font-size: 12px;">Supplier / Vendor</label>
+                                <select name="supplier_id" class="form-select" style="font-size: 13px;">
+                                    <option value="">Select Supplier...</option>
                                     @foreach($suppliers as $supplier)
                                         <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 form-group">
-                                <label>Reference No (PO Number / Invoice)</label>
-                                <input type="text" name="reference_no" class="form-control">
+                            <div class="col-md-6 mb-2">
+                                <label class="fw-semibold mb-1" style="font-size: 12px;">Reference No (PO # / Invoice #)</label>
+                                <input type="text" name="reference_no" class="form-control" placeholder="e.g. PO-2026-001" style="font-size: 13px;">
                             </div>
-                            <div class="col-md-6 form-group">
-                                <label>Notes</label>
-                                <input type="text" name="note" class="form-control">
+                            <div class="col-md-6 mb-2">
+                                <label class="fw-semibold mb-1" style="font-size: 12px;">Notes / Description</label>
+                                <input type="text" name="note" class="form-control" placeholder="Optional notes..." style="font-size: 13px;">
                             </div>
                         </div>
 
-                        <hr>
-                        <h6>Items</h6>
+                        <hr class="my-3">
+                        
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="fw-bold mb-0" style="font-size: 13px;">Purchased Items</h6>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="addItemBtn" style="font-size: 11.5px;">
+                                <i class="fas fa-plus me-1"></i> Add Item Row
+                            </button>
+                        </div>
+
                         <div id="itemsContainer">
-                            <div class="row mt-2 item-row">
+                            <div class="row g-2 item-row align-items-center mb-2">
                                 <div class="col-md-5">
-                                    <select name="items[0][stock_item_id]" class="form-control" required>
-                                        <option value="">Select Item</option>
+                                    <select name="items[0][stock_item_id]" class="form-select" required style="font-size: 13px;">
+                                        <option value="">Select Item...</option>
                                         @foreach($items as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }} ({{ $item->unit }})</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <input type="number" step="0.01" name="items[0][quantity]" class="form-control" placeholder="Qty" required>
+                                    <input type="number" step="0.01" name="items[0][quantity]" class="form-control" placeholder="Qty" required style="font-size: 13px;">
                                 </div>
                                 <div class="col-md-3">
-                                    <input type="number" step="0.01" name="items[0][unit_cost]" class="form-control" placeholder="Unit Cost" required>
+                                    <input type="number" step="0.01" name="items[0][unit_cost]" class="form-control" placeholder="Unit Cost" required style="font-size: 13px;">
                                 </div>
-                                <div class="col-md-1">
-                                    
-                                </div>
+                                <div class="col-md-1"></div>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-secondary btn-sm mt-3" id="addItemBtn">Add Item Row</button>
 
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Record Purchase</button>
+                    <div class="modal-footer border-0 pt-0 pb-3">
+                        <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4 font-weight-bold">Record Purchase</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- Delete Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-      <div class="modal-dialog">
-          <form method="POST" id="deleteForm">
-              @csrf
-              @method('DELETE')
-              <div class="modal-content">
-                  <div class="modal-header">
-                      <h5 class="modal-title">Delete Purchase</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                      <p>Are you sure you want to delete this purchase? This will REVERT the stock added by this purchase.</p>
-                  </div>
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      <button type="submit" class="btn btn-danger">Delete & Revert Stock</button>
-                  </div>
-              </div>
-          </form>
-      </div>
+    {{-- Delete Modal --}}
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form method="POST" id="deleteForm" style="width: 100%;">
+                @csrf
+                @method('DELETE')
+                <div class="modal-content border-0" style="border-radius: 10px;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title font-weight-bold">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center py-4" style="font-size: 13.5px; color: #4b5563;">
+                        Are you sure you want to delete this purchase record?
+                        <div class="text-danger small mt-1"><i class="fas fa-exclamation-triangle me-1"></i> This will REVERT the stock quantities added by this purchase!</div>
+                    </div>
+                    <div class="modal-footer justify-content-center border-0 pt-0 pb-4">
+                        <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4 font-weight-bold">Delete & Revert Stock</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-    
-    </div>
-    @include('partials.admin.footer')
+
 </div>
 @endsection

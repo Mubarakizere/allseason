@@ -17,7 +17,11 @@ class TableBookingController extends Controller
     {
         $validated = $request->validated();
 
-        $validated['date'] = Carbon::createFromFormat('m/d/Y', $validated['date'])->format('Y-m-d');
+        try {
+            $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
+        } catch (\Exception $e) {
+            $validated['date'] = now()->format('Y-m-d');
+        }
 
         $booking = TableBooking::create($validated);
 

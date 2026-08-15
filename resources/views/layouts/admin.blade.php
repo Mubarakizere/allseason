@@ -4,54 +4,123 @@
      <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title')</title>
+    @include('partials.pwa-head')
 
-    @stack('styles')
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <style>
+        /* Modern Admin Layout Styles */
+        body {
+            background-color: #f4f6f9;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container-scroller {
+            display: flex;
+            min-height: 100vh;
+        }
+        .admin-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+        .main-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background-color: #f4f6f9;
+            min-height: 100vh;
+            padding-top: 0 !important;
+        }
+        .content-wrapper {
+            background-color: #f4f6f9 !important;
+            padding: 1.8rem 2.2rem !important;
+            flex-grow: 1;
+        }
+        .page-body-wrapper {
+            padding-top: 0 !important;
+            min-height: 100vh;
+            display: flex;
+            width: 100%;
+        }
 
-    <!-- endinject -->
-    <link rel="shortcut icon" href="/favicon_io/favicon.ico" />
+        /* Mobile top header bar */
+        .mobile-admin-header {
+            background-color: #14161a;
+            color: #ffffff;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .mobile-admin-header .brand-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            text-decoration: none;
+        }
+        .mobile-toggle-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Responsive sidebar drawer backdrop for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1030;
+            backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.show {
+            display: block;
+        }
+    </style>
   </head>
   <body>
  
     <div class="container-scroller">
-      <!-- partial:partials/_navbar.html -->
-      <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
-        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-          <a class="navbar-brand brand-logo" href="{{ route('admin.dashboard') }}" style="text-decoration: none;"><h6 class="mb-0 font-weight-bold" style="color: inherit;">All The Season Garden</h6></a>
-          <a class="navbar-brand brand-logo-mini" href="{{ route('admin.dashboard') }}" style="text-decoration: none;"><h6 class="mb-0 font-weight-bold" style="color: inherit;">ATSG</h6></a>
-          <button class="navbar-toggler navbar-toggler align-self-center d-none d-lg-flex" type="button" data-toggle="minimize">
-            <span class="typcn typcn-th-menu"></span>
+      <div class="admin-wrapper flex-column flex-lg-row w-100">
+
+        <!-- Mobile Header Bar (Visible on mobile only) -->
+        <div class="mobile-admin-header d-lg-none">
+          <a href="{{ route('admin.dashboard') }}" class="brand-title d-inline-flex align-items-center">
+            <img src="/favicon_io/android-chrome-192x192.png" alt="All Season Garden" style="width: 26px; height: 26px; border-radius: 6px; margin-right: 8px; object-fit: cover;">
+            <span>All Season Garden</span>
+          </a>
+          <button type="button" class="mobile-toggle-btn" id="mobileSidebarToggle">
+            <i class="fas fa-bars"></i>
           </button>
         </div>
-        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
- 
-          <ul class="navbar-nav navbar-nav-right">
-            <li class="nav-item d-none d-lg-flex  mr-2">  <a class="nav-link" href="{{ route('admin.view.myprofile') }}"> <i class="typcn typcn-user-outline mr-0"></i> {{ $loggedInUser->first_name }}  </a> </li>
-            <li class="nav-item d-none d-lg-flex  mr-2">  <a class="nav-link" href="{{ route('auth.logout') }}"> <i class="typcn typcn-power-outline mr-0"></i> Logout  </a> </li>
-         
-         
 
-          </ul>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-          <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
-            <span class="typcn typcn-th-menu"></span>
-          </button>
+        <div class="container-fluid page-body-wrapper p-0">
+          @include('partials.admin.sidebar')
+          
+          <div class="main-panel">
+            @yield('content')
+            @include('partials.admin.footer')
+          </div>
+
+          @include('partials.logout')
         </div>
-      </nav>
-      <!-- partial -->
-      <div class="container-fluid page-body-wrapper">
-
-
-        @include('partials.admin.sidebar')
-        
-        @yield('content')
-
-        @include('partials.logout')
-
       </div>
-      <!-- page-body-wrapper ends -->
     </div>
-    <!-- container-scroller -->
  
     @if(session('auto_print_receipt_url'))
     <script>
@@ -60,6 +129,31 @@
         });
     </script>
     @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toggleBtn = document.getElementById('mobileSidebarToggle');
+            var closeBtn = document.getElementById('closeSidebarBtn');
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+
+            function openSidebar() {
+                if (sidebar) sidebar.classList.add('mobile-open');
+                if (overlay) overlay.classList.add('show');
+            }
+            function closeSidebar() {
+                if (sidebar) sidebar.classList.remove('mobile-open');
+                if (overlay) overlay.classList.remove('show');
+            }
+
+            if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     @stack('scripts')
 

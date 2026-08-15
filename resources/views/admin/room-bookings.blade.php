@@ -1,189 +1,334 @@
 @extends('layouts.admin')
 
+@section('title', 'Room Bookings — All The Season Garden')
+
 @push('styles')
-    <link rel="stylesheet" href="/admin_resources/vendors/typicons.font/font/typicons.css">
-    <link rel="stylesheet" href="/admin_resources/vendors/css/vendor.bundle.base.css">
-    <link rel="stylesheet" href="/admin_resources/css/vertical-layout-light/style.css">
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+
+<style>
+    .rb-wrap {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Page Header */
+    .rb-header {
+        margin-bottom: 24px;
+    }
+    .rb-header h1 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 4px;
+        letter-spacing: -0.02em;
+    }
+    .rb-header p {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    /* Card & Table */
+    .rb-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .rb-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .rb-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+
+    /* DataTables Custom Styling */
+    .dataTables_wrapper {
+        padding: 0;
+    }
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        padding: 14px 20px 10px;
+        font-size: 13px;
+        color: #6b7280;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 13px;
+        outline: none;
+        margin-left: 8px;
+    }
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #dc2626;
+    }
+    table.dataTable {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        border: none !important;
+        margin: 0 !important;
+    }
+    table.dataTable<thead>th {
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb !important;
+        border-top: none !important;
+        color: #374151;
+        font-weight: 600;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 10px 18px !important;
+    }
+    table.dataTable<tbody>td {
+        padding: 12px 18px !important;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6 !important;
+        border-top: none !important;
+        color: #111827;
+        font-size: 13px;
+    }
+    table.dataTable<tbody>tr:hover {
+        background-color: #f9fafb !important;
+    }
+    .dataTables_info,
+    .dataTables_paginate {
+        padding: 12px 20px !important;
+        font-size: 12.5px;
+        color: #6b7280;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 6px !important;
+        border: 1px solid #e5e7eb !important;
+        background: #ffffff !important;
+        color: #374151 !important;
+        font-size: 12px !important;
+        padding: 3px 9px !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #111827 !important;
+        color: #ffffff !important;
+        border-color: #111827 !important;
+        box-shadow: none !important;
+    }
+</style>
 @endpush
 
 @push('scripts')
-<script src="/admin_resources/vendors/js/vendor.bundle.base.js"></script>
-<script src="/admin_resources/js/off-canvas.js"></script>
-<script src="/admin_resources/js/hoverable-collapse.js"></script>
-<script src="/admin_resources/js/template.js"></script>
-<script src="/admin_resources/js/settings.js"></script>
-<script src="/admin_resources/js/todolist.js"></script>
-<script src="/admin_resources/vendors/progressbar.js/progressbar.min.js"></script>
-<script src="/admin_resources/vendors/chart.js/Chart.min.js"></script>
-<script src="/admin_resources/js/dashboard.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-       $('.edit-btn').on('click', function () {
-           let id = $(this).data('id');
-           let status = $(this).data('status');
-           let payment = $(this).data('payment');
-   
-           $('#editStatus').val(status);
-           $('#editPayment').val(payment);
-   
-           let actionUrl = "{{ route('admin.room-bookings.update', ':id') }}".replace(':id', id);
-           $('#editForm').attr('action', actionUrl);
-       });
+    $(document).ready(function() {
+        $('#room-bookings-table').DataTable({
+            paging: true,
+            searching: true,
+            lengthChange: false,
+            pageLength: 15,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search room bookings..."
+            }
+        });
 
-       $('.delete-btn').on('click', function() {
-           let id = $(this).data('id');
-           let actionUrl = "{{ route('admin.room-bookings.destroy', ':id') }}".replace(':id', id);
-           $('#deleteForm').attr('action', actionUrl);
-       });
-   });
+        $(document).on('click', '.edit-btn', function() {
+            let id = $(this).data('id');
+            let status = $(this).data('status');
+            let payment = $(this).data('payment');
+
+            $('#editStatus').val(status);
+            $('#editPayment').val(payment);
+
+            let actionUrl = "{{ route('admin.room-bookings.update', ':id') }}".replace(':id', id);
+            $('#editForm').attr('action', actionUrl);
+        });
+
+        $(document).on('click', '.delete-btn', function() {
+            let id = $(this).data('id');
+            let actionUrl = "{{ route('admin.room-bookings.destroy', ':id') }}".replace(':id', id);
+            $('#deleteForm').attr('action', actionUrl);
+        });
+    });
 </script>
 @endpush
 
-@section('title', 'Admin - Room Bookings')
-
 @section('content')
-<div class="main-panel">
-    <div class="content-wrapper">
-      @include('partials.message-bag')
+<div class="content-wrapper rb-wrap">
+    
+    @include('partials.message-bag')
 
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Room Bookings ({{ $bookings->count() }})</span>
-            </div>
-            <div class="card-body">
-                <table class="table">
+    {{-- Page Header --}}
+    <div class="rb-header">
+        <h1>Room Reservations & Bookings</h1>
+        <p>Manage customer reservations and check-in / check-out dates for accommodation rooms.</p>
+    </div>
+
+    {{-- Bookings Card --}}
+    <div class="rb-card">
+        <div class="rb-card-header">
+            <h3 class="rb-card-title">All Room Bookings ({{ $bookings->count() }})</h3>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table" id="room-bookings-table">
                     <thead>
                         <tr>
                             <th>Customer</th>
-                            <th>Room & Dates</th>
-                            <th>Total/Deposit</th>
-                            <th>Payment</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Room Name</th>
+                            <th>Stay Dates</th>
+                            <th>Total & Deposit</th>
+                            <th>Payment Status</th>
+                            <th>Booking Status</th>
+                            <th style="min-width: 100px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($bookings as $booking)
-                        <tr>
-                            <td>
-                                <strong>{{ $booking->customer_name }}</strong><br>
-                                {{ $booking->customer_email }}<br>
-                                {{ $booking->customer_phone }}
-                            </td>
-                            <td>
-                                <strong>{{ $booking->room->name ?? 'N/A' }}</strong> <br>
-                                Check-in: <strong>{{ \Carbon\Carbon::parse($booking->check_in_date)->format('M d, Y') }}</strong><br>
-                                Check-out: <strong>{{ \Carbon\Carbon::parse($booking->check_out_date)->format('M d, Y') }}</strong>
-                            </td>
-                            <td>
-                                Total: {!! $site_settings->currency_symbol !!}{{ number_format($booking->total_price, 2) }}<br>
-                                Deposit: {!! $site_settings->currency_symbol !!}{{ number_format($booking->deposit_amount, 2) }}
-                            </td>
-                            <td>
-                                @if($booking->payment_status == 'unpaid')
-                                    <span class="badge bg-warning text-dark">Unpaid</span>
-                                @elseif($booking->payment_status == 'deposit_paid')
-                                    <span class="badge bg-primary text-white">Deposit Paid</span>
-                                @else
-                                    <span class="badge bg-success text-white">Fully Paid</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($booking->status == 'pending')
-                                    <span class="badge bg-warning text-dark">Pending</span>
-                                @elseif($booking->status == 'confirmed')
-                                    <span class="badge bg-success text-white">Confirmed</span>
-                                @else
-                                    <span class="badge bg-danger text-white">Cancelled</span>
-                                @endif
-                            </td>
-                            <td>
-                                <button class="m-1 btn btn-success btn-sm edit-btn" 
-                                    data-id="{{ $booking->id }}" 
-                                    data-status="{{ $booking->status }}"
-                                    data-payment="{{ $booking->payment_status }}"
-                                    data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa fa-edit"></i></button>
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ $booking->customer_name }}</div>
+                                    <div class="text-muted" style="font-size: 11px;">
+                                        <i class="fas fa-envelope me-1"></i> {{ $booking->customer_email }}
+                                    </div>
+                                    @if($booking->customer_phone)
+                                        <div class="text-muted" style="font-size: 11px;">
+                                            <i class="fas fa-phone me-1"></i> {{ $booking->customer_phone }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ $booking->room->name ?? 'N/A' }}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark" style="font-size: 12px;">
+                                        In: <strong>{{ \Carbon\Carbon::parse($booking->check_in_date)->format('M d, Y') }}</strong>
+                                    </div>
+                                    <div class="text-muted" style="font-size: 12px;">
+                                        Out: <strong>{{ \Carbon\Carbon::parse($booking->check_out_date)->format('M d, Y') }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Total: <strong class="text-dark">{!! $site_settings->currency_symbol !!}{{ number_format($booking->total_price, 2) }}</strong></div>
+                                    <small class="text-muted" style="font-size: 11px;">Deposit: {!! $site_settings->currency_symbol !!}{{ number_format($booking->deposit_amount, 2) }}</small>
+                                </td>
+                                <td>
+                                    @if($booking->payment_status == 'unpaid')
+                                        <span class="badge bg-warning text-dark fw-semibold" style="font-size: 11px;">Unpaid</span>
+                                    @elseif($booking->payment_status == 'deposit_paid')
+                                        <span class="badge bg-info text-dark fw-semibold" style="font-size: 11px;">Deposit Paid</span>
+                                    @else
+                                        <span class="badge bg-success text-white fw-semibold" style="font-size: 11px;">Fully Paid</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($booking->status == 'pending')
+                                        <span class="badge bg-warning text-dark fw-semibold" style="font-size: 11px;">Pending</span>
+                                    @elseif($booking->status == 'confirmed')
+                                        <span class="badge bg-success text-white fw-semibold" style="font-size: 11px;">Confirmed</span>
+                                    @else
+                                        <span class="badge bg-danger text-white fw-semibold" style="font-size: 11px;">Cancelled</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <button class="btn btn-sm btn-outline-secondary edit-btn" 
+                                            data-id="{{ $booking->id }}" 
+                                            data-status="{{ $booking->status }}"
+                                            data-payment="{{ $booking->payment_status }}"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editModal"
+                                            title="Update Status">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
 
-                                <button class="m-1 btn btn-danger btn-sm delete-btn" 
-                                    data-id="{{ $booking->id }}" 
-                                    data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="fa fa-trash"></i></button>
-                            </td>
-                        </tr>
+                                        <button class="btn btn-sm btn-outline-danger delete-btn" 
+                                            data-id="{{ $booking->id }}" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal"
+                                            title="Delete Booking">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                         @empty
-                        <tr>
-                            <td colspan="6" class="text-center">No bookings available.</td>
-                        </tr>
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">No room bookings available.</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
-    
-    <!-- Edit Modal -->
+    </div>
+
+    {{-- Edit Modal --}}
     <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="POST" id="editForm">
+        <div class="modal-dialog modal-dialog-centered">
+            <form method="POST" id="editForm" style="width: 100%;">
                 @csrf
                 @method('PUT')
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Update Booking Status</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-content border-0" style="border-radius: 10px;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title font-weight-bold">Update Booking Status</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Payment Status</label>
-                            <select name="payment_status" id="editPayment" class="form-control" required>
+                    <div class="modal-body py-3">
+                        <div class="mb-3">
+                            <label class="fw-semibold mb-1" style="font-size: 12px;">Payment Status *</label>
+                            <select name="payment_status" id="editPayment" class="form-select" required style="font-size: 13px;">
                                 <option value="unpaid">Unpaid</option>
                                 <option value="deposit_paid">Deposit Paid</option>
                                 <option value="fully_paid">Fully Paid</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Booking Status</label>
-                            <select name="status" id="editStatus" class="form-control" required>
+                        <div class="mb-2">
+                            <label class="fw-semibold mb-1" style="font-size: 12px;">Booking Status *</label>
+                            <select name="status" id="editStatus" class="form-select" required style="font-size: 13px;">
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <div class="modal-footer border-0 pt-0 pb-3">
+                        <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4 font-weight-bold">Update Status</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- Delete Modal -->
+    {{-- Delete Modal --}}
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-          <form method="POST" id="deleteForm">
-              @csrf
-              @method('DELETE')
-              <div class="modal-content">
-                  <div class="modal-header">
-                      <h5 class="modal-title">Delete Booking</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                      <p>Are you sure you want to delete this booking?</p>
-                  </div>
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      <button type="submit" class="btn btn-danger">Delete</button>
-                  </div>
-              </div>
-          </form>
-      </div>
+        <div class="modal-dialog modal-dialog-centered">
+            <form method="POST" id="deleteForm" style="width: 100%;">
+                @csrf
+                @method('DELETE')
+                <div class="modal-content border-0" style="border-radius: 10px;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title font-weight-bold">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center py-4" style="font-size: 13.5px; color: #4b5563;">
+                        Are you sure you want to delete this room booking record?
+                    </div>
+                    <div class="modal-footer justify-content-center border-0 pt-0 pb-4">
+                        <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4 font-weight-bold">Delete</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-    
-    </div>
-    @include('partials.admin.footer')
+
 </div>
 @endsection
