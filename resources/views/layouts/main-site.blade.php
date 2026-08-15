@@ -17,8 +17,23 @@
 <!-- Favicon Icon -->
 <link rel="shortcut icon" type="image/x-icon" href="/favicon_io/favicon.ico" />
 
+<!-- Latest Bootstrap min CSS -->
+<link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900&amp;display=swap" rel="stylesheet"> 
+<!-- Icon Font CSS -->
+<link rel="stylesheet" href="/assets/css/all.min.css">
+<link rel="stylesheet" href="/assets/css/ionicons.min.css">
+<link rel="stylesheet" href="/assets/css/themify-icons.css">
+<link rel="stylesheet" href="/assets/css/linearicons.css">
+<link rel="stylesheet" href="/assets/css/flaticon.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!-- Style CSS -->
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/responsive.css">
+<link id="layoutstyle" rel="stylesheet" href="/assets/color/theme-red.css">
+
 @stack('styles')
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
  <script>
      const csrfToken = "{{ csrf_token() }}";
      const addToCartUrl = "{{ route('customer.cart.add') }}";
@@ -44,6 +59,30 @@
     </div>
 </div>
 <!-- END LOADER --> 
+
+<script>
+    function hidePreloader() {
+        var loader = document.getElementById('preloader');
+        if (loader) {
+            loader.style.opacity = '0';
+            loader.style.transition = 'opacity 0.3s ease';
+            setTimeout(function() {
+                if (loader && loader.parentNode) {
+                    loader.parentNode.removeChild(loader);
+                }
+            }, 300);
+        }
+    }
+    if (document.readyState === 'complete') {
+        hidePreloader();
+    } else {
+        window.addEventListener('load', hidePreloader);
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(hidePreloader, 500);
+        });
+        setTimeout(hidePreloader, 1200);
+    }
+</script>
  @yield('header')
 
  @include('partials.account')

@@ -17,13 +17,17 @@
         font-size: 13px !important;
     }
     @media (max-width: 991.98px) {
-        /* Keep background transparent at top, but solid when scrolled (nav-fixed) or menu opened */
-        header.header_wrap.nav-fixed,
-        header.header_wrap.menu_open,
-        header.header_wrap:has(.navbar-collapse.show) {
-            background-color: #1a1d20 !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
-        }
+    header.header_wrap.nav-fixed,
+    header.header_wrap.menu_open,
+    header.header_wrap:has(.navbar-collapse.show) {
+        background-color: #1a1d20 !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    }
+
+    .breadcrumb_section {
+        padding-top: 140px !important;
+        padding-bottom: 50px !important;
+    }
 
         .header_wrap .navbar {
             display: flex !important;
