@@ -9,7 +9,7 @@
                         <div class="footer_logo">
                             <a href="{{ route('home') }}"><h4 class="text-white font-weight-bold" style="letter-spacing: 1px;">All The Season Garden</h4></a>
                         </div>
-                        <p>At {{ config('site.name') }}, we pride ourselves on bringing you the authentic flavors of West Africa. Our expertly crafted dishes and warm hospitality create a dining experience you won't forget.</p>
+                        <p>At {{ config('site.name') }}, we pride ourselves on bringing you the authentic flavors of Rwandan and African. Our expertly crafted dishes and warm hospitality create a dining experience you won't forget.</p>
                     </div>
                     <div class="widget">
                         <ul class="social_icons social_white social_style1 rounded_social">
