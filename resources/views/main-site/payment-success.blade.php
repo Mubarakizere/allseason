@@ -21,6 +21,7 @@
 @endpush
 
 @section('title', 'Order Successful')
+@section('meta_robots', 'noindex, nofollow')
 
 @section('header')
     <header class="header_wrap fixed-top header_with_topbar light_skin main_menu_uppercase">

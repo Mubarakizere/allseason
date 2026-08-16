@@ -76,7 +76,22 @@
 @endpush
 
 
-@section('title', 'Blog')
+@section('title', 'Blog & News - Restaurant Articles & Recipes')
+@section('meta_description', 'Read the latest stories, culinary insights, African recipes, and food news from ' . config('site.name') . '.')
+@section('meta_keywords', 'Restaurant blog, food news, African recipes, charcoal grill stories, Kigali food blog')
+@section('canonical_url', route('blogs'))
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "Blog - {{ config('site.name') }}",
+  "url": "{{ route('blogs') }}",
+  "description": "Stories, culinary insights, and recipes from {{ config('site.name') }}."
+}
+</script>
+@endsection
 
 
 @section('header')

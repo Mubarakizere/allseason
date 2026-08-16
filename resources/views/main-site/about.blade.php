@@ -74,7 +74,22 @@
 @endpush
 
 
-@section('title', 'About')
+@section('title', 'About Us - Authentic Rwandan & African Cuisine')
+@section('meta_description', 'Learn about ' . config('site.name') . ', bringing authentic Rwandan and African flavors, charcoal grills, and warm hospitality to every guest.')
+@section('meta_keywords', 'About ' . config('site.name') . ', Rwandan restaurant, African heritage food, Kigali dining, charcoal grill')
+@section('canonical_url', route('about'))
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "About Us - {{ config('site.name') }}",
+  "url": "{{ route('about') }}",
+  "description": "Learn about {{ config('site.name') }}, bringing authentic Rwandan and African flavors, charcoal grills, and warm hospitality."
+}
+</script>
+@endsection
 
 
 @section('header')
@@ -118,7 +133,7 @@
                         <span class="sub_heading font_style1">About Us</span>
                         <h2>{{ config('site.name') }}</h2>
                     </div>
-                    <p>Welcome to {{ config('site.name') }}, where we bring the vibrant and rich flavors of Rwanda and  African cuisine to your table. Our specialty, burgers, steaks, fish, is a smoky, spicy delight that's sure to tantalize your taste buds.</p>
+                    <p>Welcome to {{ config('site.name') }}, where we bring the vibrant and rich flavors of Rwanda and African cuisine to your table. Our specialties, including charcoal grills, steaks, fish, and burgers, offer a smoky, spicy delight that's sure to tantalize your taste buds.</p>
                     <p>At {{ config('site.name') }}, we are dedicated to serving authentic and innovative dishes crafted from the freshest ingredients. Come experience the best of Rwanda and African culinary tradition with us!</p>
                 </div>
             </div>
@@ -142,7 +157,7 @@
                             <span class="sub_heading font_style1">Experience the Authentic Flavors</span>
                             <h2>{{ config('site.name') }}: A Taste of Tradition</h2>
                         </div>
-                        <p class="text-white">Embark on a culinary journey with {{ config('site.name') }}, where we celebrate the rich and diverse flavors of West Africa. Our signature Suya, crafted with a blend of traditional spices, offers a unique and unforgettable dining experience.</p>
+                        <p class="text-white">Embark on a culinary journey with {{ config('site.name') }}, where we celebrate the rich and diverse flavors of Rwanda and Africa. Our signature dishes, crafted with a blend of traditional spices, offer a unique and unforgettable dining experience.</p>
                     </div>
                 </div>
             </div>

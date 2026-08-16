@@ -248,7 +248,8 @@
 
 @endpush
 
-@section('title', 'Create Account')
+@section('title', 'Delivery Address')
+@section('meta_robots', 'noindex, nofollow')
 
 @section('header')
   <!-- START HEADER -->

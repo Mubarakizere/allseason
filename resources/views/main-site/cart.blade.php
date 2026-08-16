@@ -206,7 +206,8 @@
 @endpush
 
 
-@section('title', 'Cart')
+@section('title', 'Shopping Cart')
+@section('meta_robots', 'noindex, nofollow')
 
 
 @section('header')

@@ -118,6 +118,7 @@
 @endpush
 
 @section('title', 'Choose Delivery Method')
+@section('meta_robots', 'noindex, nofollow')
 
 @section('header')
     <!-- START HEADER -->

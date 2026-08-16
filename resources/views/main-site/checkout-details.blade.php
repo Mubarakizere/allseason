@@ -88,7 +88,8 @@
 @endpush
 
 
-@section('title', 'Create Account')
+@section('title', 'Checkout Details')
+@section('meta_robots', 'noindex, nofollow')
 
 
 @section('header')

@@ -734,16 +734,16 @@
                     <div class="gs-card-body p-3">
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label for="price_per_mile" class="fw-semibold mb-1" style="font-size: 12px;">Delivery Rate / Mile ({!! $site_settings->currency_symbol !!}) *</label>
-                                <input type="number" name="price_per_mile" id="price_per_mile" class="form-control" value="{{ $order_settings->price_per_mile ?? '' }}" step="0.01" required style="font-size: 13px;">
+                                <label for="price_per_mile" class="fw-semibold mb-1" style="font-size: 12px;">Delivery Rate / Mile ({!! $site_settings?->currency_symbol ?? '' !!}) *</label>
+                                <input type="number" name="price_per_mile" id="price_per_mile" class="form-control" value="{{ $order_settings?->price_per_mile ?? '' }}" step="0.01" required style="font-size: 13px;">
                             </div>
                             <div class="col-md-4">
                                 <label for="distance_limit_in_miles" class="fw-semibold mb-1" style="font-size: 12px;">Max Distance Radius (Miles) *</label>
-                                <input type="number" name="distance_limit_in_miles" id="distance_limit_in_miles" class="form-control" value="{{ $order_settings->distance_limit_in_miles ?? '' }}" required style="font-size: 13px;">
+                                <input type="number" name="distance_limit_in_miles" id="distance_limit_in_miles" class="form-control" value="{{ $order_settings?->distance_limit_in_miles ?? '' }}" required style="font-size: 13px;">
                             </div>
                             <div class="col-md-4">
                                 <label for="notification_emails" class="fw-semibold mb-1" style="font-size: 12px;">Order Alert Emails</label>
-                                <input type="text" name="notification_emails" id="notification_emails" class="form-control" value="{{ $order_settings->notification_emails ?? '' }}" placeholder="admin@example.com, manager@example.com" style="font-size: 13px;">
+                                <input type="text" name="notification_emails" id="notification_emails" class="form-control" value="{{ $order_settings?->notification_emails ?? '' }}" placeholder="admin@example.com, manager@example.com" style="font-size: 13px;">
                                 <small class="text-muted" style="font-size: 11px;">Separate multiple email addresses with commas.</small>
                             </div>
                         </div>

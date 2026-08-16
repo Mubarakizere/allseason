@@ -1,2 +1,26 @@
+# Robots.txt for Restaurant Website
 User-agent: *
-Disallow:
+Allow: /
+Allow: /menu
+Allow: /menu-item/
+Allow: /about
+Allow: /contact
+Allow: /blogs
+Allow: /blog/view/
+Allow: /venues
+Allow: /rooms
+Allow: /privacy-policy
+Allow: /terms-conditions
+
+# Disallow internal, account, checkout, and administrative routes
+Disallow: /admin/
+Disallow: /customer/
+Disallow: /cart
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /payment/
+Disallow: /auth/
+Disallow: /weflexfy/
+
+# Sitemap Location
+Sitemap: /sitemap.xml

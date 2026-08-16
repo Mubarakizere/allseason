@@ -75,6 +75,9 @@
 
 
 @section('title', 'Privacy Policy')
+@section('meta_description', 'Read the privacy policy of ' . config('site.name') . ' detailing data collection, user rights, and security policies.')
+@section('meta_keywords', 'Privacy Policy, data protection, terms, ' . config('site.name'))
+@section('canonical_url', route('privacy.policy'))
 
 
 @section('header')

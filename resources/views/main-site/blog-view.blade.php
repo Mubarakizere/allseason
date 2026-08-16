@@ -75,7 +75,40 @@
 @endpush
 
 
-@section('title', 'Blog Details')
+@section('title', $blog->name)
+@section('meta_description', Str::limit(strip_tags($blog->content), 155))
+@section('meta_keywords', implode(', ', array_filter(explode(' ', $blog->name))))
+@section('canonical_url', route('blog.view', $blog->id))
+@section('og_type', 'article')
+@section('og_title', $blog->name . ' - ' . config('site.name'))
+@section('og_description', Str::limit(strip_tags($blog->content), 155))
+@section('og_image', asset('storage/' . $blog->image))
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ e($blog->name) }}",
+  "image": ["{{ asset('storage/' . $blog->image) }}"],
+  "datePublished": "{{ $blog->created_at->toIso8601String() }}",
+  "dateModified": "{{ $blog->updated_at->toIso8601String() }}",
+  "author": {
+    "@type": "Organization",
+    "name": "{{ config('site.name') }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ config('site.name') }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ asset('assets/images/logo.png') }}"
+    }
+  },
+  "description": "{{ e(Str::limit(strip_tags($blog->content), 160)) }}"
+}
+</script>
+@endsection
 
 
 @section('header')

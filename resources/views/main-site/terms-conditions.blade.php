@@ -75,6 +75,9 @@
 
 
 @section('title', 'Terms and Conditions')
+@section('meta_description', 'Read the terms and conditions for ordering, bookings, and services at ' . config('site.name') . '.')
+@section('meta_keywords', 'Terms and Conditions, service terms, booking policy, ' . config('site.name'))
+@section('canonical_url', route('terms.conditions'))
 
 
 @section('header')

@@ -85,7 +85,31 @@
 @endpush
 
 
-@section('title', 'Menu Details')
+@section('title', $menu->name . ' - ' . ($menu->category ? $menu->category->name : 'Menu'))
+@section('meta_description', Str::limit(strip_tags($menu->description ? $menu->description : 'Order ' . $menu->name . ' at ' . config('site.name') . '. Authentic taste, cooked to order.'), 155))
+@section('meta_keywords', $menu->name . ', ' . ($menu->category ? $menu->category->name : '') . ', order ' . $menu->name . ', African food')
+@section('canonical_url', route('menu.item', $menu->id))
+@section('og_title', $menu->name . ' - ' . config('site.name'))
+@section('og_description', Str::limit(strip_tags($menu->description ? $menu->description : 'Order ' . $menu->name . ' at ' . config('site.name')), 155))
+@section('og_image', $menu->image_url)
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "MenuItem",
+  "name": "{{ e($menu->name) }}",
+  "description": "{{ e(strip_tags($menu->description ?? $menu->name)) }}",
+  "image": "{{ $menu->image_url }}",
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "{{ $site_settings->currency_code ?? 'RWF' }}",
+    "price": "{{ $menu->price }}",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+@endsection
 
 
 @section('header')

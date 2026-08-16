@@ -128,7 +128,10 @@
 @endpush
 
 
-@section('title', 'Home')
+@section('title', 'Home - Authentic Rwandan & African Restaurant')
+@section('meta_description', 'Discover authentic Rwandan and African cuisine, charcoal-grilled delicacies, fast food, and event catering at ' . config('site.name') . '. Order online or book a table today.')
+@section('meta_keywords', 'Rwandan restaurant, African cuisine, Kigali dining, BBQ, bar, order food online, book table, fast food, event venue')
+@section('canonical_url', route('home'))
 
 @section('header')
     <!-- START HEADER -->

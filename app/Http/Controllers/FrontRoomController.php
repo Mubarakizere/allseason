@@ -140,7 +140,7 @@ class FrontRoomController extends Controller
         return view('main-site.weflexfy-pay', [
             'iframeUrl' => $response['iframeUrl'],
             'amount' => $deposit_amount,
-            'currencySymbol' => $siteSettings->currency_symbol ?? 'RWF',
+            'currencySymbol' => $siteSettings?->currency_symbol ?? 'RWF',
             'title' => 'Room Booking #' . $booking->id . ' Deposit',
             'redirectUrl' => route('rooms.success', ['session_id' => $response['requestToken']]),
         ]);

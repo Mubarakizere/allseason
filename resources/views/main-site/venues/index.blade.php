@@ -124,7 +124,22 @@
     <script src="/assets/js/scripts.js"></script>
 @endpush
 
-@section('title', 'Venues & Tents')
+@section('title', 'Event Venues & Spaces')
+@section('meta_description', 'Book exquisite event venues, banquets, and outdoor spaces at ' . config('site.name') . '. Ideal for weddings, corporate events, and celebrations.')
+@section('meta_keywords', 'Event venues, wedding hall, corporate events, banquets, Kigali venue hire, ' . config('site.name'))
+@section('canonical_url', route('venues.index'))
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EventVenue",
+  "name": "Event Venues - {{ config('site.name') }}",
+  "url": "{{ route('venues.index') }}",
+  "description": "Discover elegant event spaces, halls, and tents available for booking."
+}
+</script>
+@endsection
 
 @section('header')
     <header class="header_wrap fixed-top header_with_topbar light_skin main_menu_uppercase">

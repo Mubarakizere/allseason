@@ -72,6 +72,7 @@
 @endpush
 
 @section('title', 'Payment Cancelled')
+@section('meta_robots', 'noindex, nofollow')
 
 @section('header')
     <!-- START HEADER -->

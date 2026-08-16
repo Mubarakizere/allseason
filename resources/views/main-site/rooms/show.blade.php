@@ -169,7 +169,33 @@
     </script>
 @endpush
 
-@section('title', $room->name)
+@section('title', $room->name . ' - Room Booking')
+@section('meta_description', Str::limit(strip_tags($room->description ? $room->description : 'Reserve ' . $room->name . ' at ' . config('site.name') . '. Luxury stay with premium amenities.'), 155))
+@section('meta_keywords', $room->name . ', book room, accommodation, Kigali lodge, ' . config('site.name'))
+@section('canonical_url', route('rooms.show', $room->id))
+@section('og_title', $room->name . ' - ' . config('site.name'))
+@section('og_description', Str::limit(strip_tags($room->description ? $room->description : 'Reserve ' . $room->name . ' at ' . config('site.name')), 155))
+@if($room->image)
+@section('og_image', asset('storage/' . $room->image))
+@elseif($room->images->count() > 0)
+@section('og_image', asset('storage/' . $room->images->first()->image))
+@endif
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HotelRoom",
+  "name": "{{ e($room->name) }}",
+  "url": "{{ route('rooms.show', $room->id) }}",
+  "description": "{{ e(strip_tags($room->description ?? $room->name)) }}",
+  "occupancy": {
+    "@type": "QuantitativeValue",
+    "value": "{{ $room->capacity }}"
+  }
+}
+</script>
+@endsection
 
 @section('header')
     <header class="header_wrap fixed-top header_with_topbar light_skin main_menu_uppercase">

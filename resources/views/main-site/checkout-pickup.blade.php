@@ -165,7 +165,8 @@
 @endpush
 
 
-@section('title', 'Create Account')
+@section('title', 'Select Pickup Location')
+@section('meta_robots', 'noindex, nofollow')
 
 
 @section('header')

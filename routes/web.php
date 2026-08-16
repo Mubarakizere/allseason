@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckRoleAdmin;
 use App\Http\Middleware\CheckRoleCustomer;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Middleware\RedirectIfNotAdmin;
 use App\Http\Controllers\MainSiteController;
 use App\Http\Controllers\Admin\BlogController;
@@ -39,6 +40,8 @@ use App\Http\Controllers\Admin\StockPurchaseController;
 use App\Http\Controllers\Admin\StockIssueController;
 use App\Http\Controllers\Admin\StockHistoryController;
 
+
+Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/', [MainSiteController::class, 'home'])->name('home');
 

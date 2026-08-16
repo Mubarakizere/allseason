@@ -1,6 +1,7 @@
 @extends('layouts.main-site')
 
 @section('title', 'Complete Payment')
+@section('meta_robots', 'noindex, nofollow')
 
 @push('styles')
 <style>

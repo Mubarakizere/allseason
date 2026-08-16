@@ -121,7 +121,22 @@
     <script src="/assets/js/scripts.js"></script>
 @endpush
 
-@section('title', 'Rooms')
+@section('title', 'Rooms & Accommodation')
+@section('meta_description', 'Book luxurious, comfortable rooms and accommodations at ' . config('site.name') . '. Enjoy premium amenities and serene atmosphere.')
+@section('meta_keywords', 'Rooms, accommodation, hotel rooms, lodge, Kigali stay, book room, ' . config('site.name'))
+@section('canonical_url', route('rooms.index'))
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Accommodation",
+  "name": "Rooms & Accommodation - {{ config('site.name') }}",
+  "url": "{{ route('rooms.index') }}",
+  "description": "Premium luxury rooms available for booking."
+}
+</script>
+@endsection
 
 @section('header')
     <header class="header_wrap fixed-top header_with_topbar light_skin main_menu_uppercase">

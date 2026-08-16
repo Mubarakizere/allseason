@@ -39,14 +39,21 @@ class CheckoutController extends Controller
         $this->provider = config('payments.provider', 'weflexfy');
 
         // Get Site Settings
-        $site_settings  = SiteSetting::latest()->first();
-        $this->currencyCode  = strtolower($site_settings->currency_code);
+        $site_settings  = SiteSetting::firstOrCreate([], [
+            'country' => config('site.country', 'Rwanda'),
+            'currency_symbol' => config('site.currency_symbol', 'RWF'),
+            'currency_code' => config('site.currency_code', 'RWF'),
+        ]);
+        $this->currencyCode  = strtolower($site_settings->currency_code ?? 'rwf');
         $this->companyAddress = CompanyAddress::first();
 
         //Order Settings
-        $order_settings = OrderSettings::first();
-        $this->price_per_mile = $order_settings->price_per_mile;
-        $this->distance_limit_in_miles = $order_settings->distance_limit_in_miles;
+        $order_settings = OrderSettings::firstOrCreate([], [
+            'price_per_mile' => 1.50,
+            'distance_limit_in_miles' => 10,
+        ]);
+        $this->price_per_mile = $order_settings->price_per_mile ?? 0;
+        $this->distance_limit_in_miles = $order_settings->distance_limit_in_miles ?? 0;
  
     }
 
@@ -211,8 +218,8 @@ class CheckoutController extends Controller
 
 
  
-                $origin_latitude = $this->companyAddress->latitude;
-                $origin_longitude = $this->companyAddress->longitude;
+                $origin_latitude = $this->companyAddress?->latitude;
+                $origin_longitude = $this->companyAddress?->longitude;
                 $destination_latitude = (float) $request->input('new.latitude');
                 $destination_longitude = (float) $request->input('new.longitude');
 
@@ -251,7 +258,8 @@ class CheckoutController extends Controller
  
  
                 if ($distance_in_miles > $this->distance_limit_in_miles && !isset($distanceData['error'])) {
-                    $error_message = "We're sorry! We can only deliver within {$this->distance_limit_in_miles} miles. You can still place your order as a walk-in at our restaurant located at {$this->companyAddress->full_address}. We look forward to serving you!";
+                    $company_address_str = $this->companyAddress?->full_address ?? '';
+                    $error_message = "We're sorry! We can only deliver within {$this->distance_limit_in_miles} miles. You can still place your order as a walk-in at our restaurant located at {$company_address_str}. We look forward to serving you!";
                     return back()->withErrors($error_message)->withInput();
                 }
 
@@ -334,8 +342,8 @@ class CheckoutController extends Controller
 
 
 
-            $origin_latitude = $this->companyAddress->latitude;
-            $origin_longitude = $this->companyAddress->longitude;
+            $origin_latitude = $this->companyAddress?->latitude;
+            $origin_longitude = $this->companyAddress?->longitude;
             $destination_latitude =  $delivery_address->latitude;
             $destination_longitude = $delivery_address->longitude;
 
@@ -350,7 +358,8 @@ class CheckoutController extends Controller
             }
 
             if ($distance_in_miles > $this->distance_limit_in_miles && !isset($distanceData['error'])) {
-                $error_message = "We're sorry! We can only deliver within {$this->distance_limit_in_miles} miles. You can still place your order as a walk-in at our restaurant located at {$this->companyAddress->full_address}. We look forward to serving you!";
+                $company_address_str = $this->companyAddress?->full_address ?? '';
+                $error_message = "We're sorry! We can only deliver within {$this->distance_limit_in_miles} miles. You can still place your order as a walk-in at our restaurant located at {$company_address_str}. We look forward to serving you!";
                 return back()->withErrors($error_message)->withInput();
             }
 
@@ -563,7 +572,7 @@ class CheckoutController extends Controller
         return view('main-site.weflexfy-pay', [
             'iframeUrl' => $response['iframeUrl'],
             'amount' => $amount,
-            'currencySymbol' => $siteSettings->currency_symbol ?? 'RWF',
+            'currencySymbol' => $siteSettings?->currency_symbol ?? 'RWF',
             'title' => 'Food Order #' . $order->order_no . ' Payment',
             'redirectUrl' => route('payment.success', ['session_id' => $response['requestToken'], 'order_no' => $order->order_no]),
         ]);

@@ -39,7 +39,10 @@ class GeneralSettingsController extends Controller
         $workingHours = CompanyWorkingHour ::all();
         $socialMediaHandles = SocialMediaHandle::all();
         $script = LiveChatScript::latest()->first();
-        $order_settings = OrderSettings::latest()->first();
+        $order_settings = OrderSettings::firstOrCreate([], [
+            'price_per_mile' => 1.50,
+            'distance_limit_in_miles' => 10,
+        ]);
 
         $site_settings = SiteSetting::firstOrCreate([], [
             'country' => config('site.country'),

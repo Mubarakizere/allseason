@@ -100,7 +100,22 @@
 @endpush
 
 
-@section('title', 'Contact')
+@section('title', 'Contact Us & Location')
+@section('meta_description', 'Contact ' . config('site.name') . ' for table reservations, inquiries, or order support. Find our location address, phone numbers, and opening hours.')
+@section('meta_keywords', 'Contact ' . config('site.name') . ', location, phone number, address, table booking, opening hours')
+@section('canonical_url', route('contact'))
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact Us - {{ config('site.name') }}",
+  "url": "{{ route('contact') }}",
+  "description": "Contact information, address, and operating hours for {{ config('site.name') }}."
+}
+</script>
+@endsection
 
 @section('header')
     <!-- START HEADER -->

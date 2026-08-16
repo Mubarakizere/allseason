@@ -250,7 +250,27 @@
     </script>
 @endpush
 
-@section('title', $venue->name)
+@section('title', $venue->name . ' - Venue & Tent Booking')
+@section('meta_description', Str::limit(strip_tags($venue->description ? $venue->description : 'Book ' . $venue->name . ' at ' . config('site.name') . '. Flexible packages and event spaces.'), 155))
+@section('meta_keywords', $venue->name . ', event space, book venue, wedding hall, ' . config('site.name'))
+@section('canonical_url', route('venues.show', $venue->id))
+@section('og_title', $venue->name . ' - ' . config('site.name'))
+@section('og_description', Str::limit(strip_tags($venue->description ? $venue->description : 'Book ' . $venue->name . ' at ' . config('site.name')), 155))
+@if($venue->images->count() > 0)
+@section('og_image', asset('storage/' . $venue->images->first()->image_path))
+@endif
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EventVenue",
+  "name": "{{ e($venue->name) }}",
+  "url": "{{ route('venues.show', $venue->id) }}",
+  "description": "{{ e(strip_tags($venue->description ?? $venue->name)) }}"
+}
+</script>
+@endsection
 
 @section('header')
     <header class="header_wrap fixed-top header_with_topbar light_skin main_menu_uppercase">

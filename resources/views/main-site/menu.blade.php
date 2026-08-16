@@ -77,7 +77,22 @@
 @endpush
 
 
-@section('title', 'Menus')
+@section('title', 'Food & Drink Menu')
+@section('meta_description', 'Explore the full menu at ' . config('site.name') . '. Order authentic African meals, charcoal grills, steaks, fast food, beverages, and desserts online.')
+@section('meta_keywords', 'Restaurant menu, order food online, African food menu, Rwanda restaurant menu, Kigali food delivery')
+@section('canonical_url', route('menu'))
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Menu",
+  "name": "Food & Drink Menu - {{ config('site.name') }}",
+  "url": "{{ route('menu') }}",
+  "description": "Full dining and take-out menu for {{ config('site.name') }}."
+}
+</script>
+@endsection
 
 
 @section('header')
