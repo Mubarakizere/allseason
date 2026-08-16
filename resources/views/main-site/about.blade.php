@@ -118,8 +118,8 @@
                         <span class="sub_heading font_style1">About Us</span>
                         <h2>{{ config('site.name') }}</h2>
                     </div>
-                    <p>Welcome to {{ config('site.name') }}, where we bring the vibrant and rich flavors of West African cuisine to your table. Our specialty, Suya, is a smoky, spicy delight that's sure to tantalize your taste buds.</p>
-                    <p>At {{ config('site.name') }}, we are dedicated to serving authentic and innovative dishes crafted from the freshest ingredients. Come experience the best of West African culinary tradition with us!</p>
+                    <p>Welcome to {{ config('site.name') }}, where we bring the vibrant and rich flavors of Rwanda and  African cuisine to your table. Our specialty, burgers, steaks, fish, is a smoky, spicy delight that's sure to tantalize your taste buds.</p>
+                    <p>At {{ config('site.name') }}, we are dedicated to serving authentic and innovative dishes crafted from the freshest ingredients. Come experience the best of Rwanda and African culinary tradition with us!</p>
                 </div>
             </div>
             
