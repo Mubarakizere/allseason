@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('stock_issue_items');
         Schema::create('stock_issue_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('stock_issue_id')->constrained()->cascadeOnDelete();
