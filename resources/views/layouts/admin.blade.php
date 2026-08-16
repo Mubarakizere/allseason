@@ -127,6 +127,28 @@
         </div>
       </div>
     </div>
+
+    <!-- Global Delete Confirmation Modal -->
+    <div class="modal fade" id="globalDeleteConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 1080;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title font-weight-bold text-dark d-flex align-items-center gap-2">
+              <i class="fas fa-exclamation-triangle text-danger"></i> Confirm Deletion
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center py-4" style="font-size: 14px; color: #4b5563;">
+            <p class="mb-1 fw-semibold" id="globalDeleteConfirmMessage">Are you sure you want to delete this record?</p>
+            <small class="text-danger">This action cannot be undone.</small>
+          </div>
+          <div class="modal-footer justify-content-center border-0 pt-0 pb-4">
+            <button type="button" class="btn btn-light px-4 me-2 font-weight-semibold" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger px-4 font-weight-bold" id="globalDeleteConfirmSubmitBtn">Yes, Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
  
     @if(session('auto_print_receipt_url'))
     <script>
@@ -160,6 +182,70 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Global Alert Dismissal Handler
+        document.addEventListener('click', function(e) {
+          var closeBtn = e.target.closest('[data-bs-dismiss="alert"], [data-dismiss="alert"], .btn-close, .close');
+          if (closeBtn) {
+            var alertBox = closeBtn.closest('.alert');
+            if (alertBox) {
+              alertBox.classList.remove('show');
+              setTimeout(function() {
+                alertBox.remove();
+              }, 150);
+            }
+          }
+        });
+
+        // Global Delete Form Interceptor
+        var targetFormToSubmit = null;
+        var globalDeleteModalEl = document.getElementById('globalDeleteConfirmModal');
+        var globalDeleteModal = null;
+        var globalConfirmBtn = document.getElementById('globalDeleteConfirmSubmitBtn');
+
+        if (globalConfirmBtn) {
+          globalConfirmBtn.addEventListener('click', function() {
+            if (targetFormToSubmit) {
+              targetFormToSubmit.dataset.confirmed = 'true';
+              targetFormToSubmit.submit();
+            }
+          });
+        }
+
+        document.addEventListener('submit', function(e) {
+          var form = e.target;
+          if (!form) return;
+
+          if (form.dataset.confirmed === 'true') return;
+          if (form.closest('.modal')) return;
+
+          var methodInput = form.querySelector('input[name="_method"]');
+          var isDeleteMethod = (methodInput && methodInput.value.toUpperCase() === 'DELETE') || 
+                               (form.getAttribute('method') && form.getAttribute('method').toUpperCase() === 'DELETE');
+
+          if (isDeleteMethod) {
+            e.preventDefault();
+            e.stopPropagation();
+            targetFormToSubmit = form;
+            var customMsg = form.dataset.confirmMessage || 'Are you sure you want to delete this item?';
+            var msgEl = document.getElementById('globalDeleteConfirmMessage');
+            if (msgEl) msgEl.textContent = customMsg;
+
+            if (globalDeleteModalEl && typeof bootstrap !== 'undefined') {
+              if (!globalDeleteModal) {
+                globalDeleteModal = new bootstrap.Modal(globalDeleteModalEl);
+              }
+              globalDeleteModal.show();
+            } else if (confirm(customMsg)) {
+              form.dataset.confirmed = 'true';
+              form.submit();
+            }
+          }
+        }, true);
+      });
+    </script>
 
     @stack('scripts')
 

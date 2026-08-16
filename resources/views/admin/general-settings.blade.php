@@ -663,14 +663,14 @@
                     <div class="gs-card-footer d-flex justify-content-between">
                         @if($script)
                             <button type="submit" class="btn btn-danger px-4 font-weight-bold">Update Script</button>
-                            <button type="button" class="btn btn-outline-danger" onclick="if(confirm('Remove live chat script?')) { document.getElementById('form-delete-livechat').submit(); }">Remove Widget</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="document.getElementById('form-delete-livechat').requestSubmit();">Remove Widget</button>
                         @else
                             <button type="submit" class="btn btn-danger px-4 font-weight-bold">Add Live Chat</button>
                         @endif
                     </div>
                 </form>
                 @if($script)
-                    <form method="POST" id="form-delete-livechat" action="{{ route('admin.livechat.destroy', $script->id) }}">
+                    <form method="POST" id="form-delete-livechat" action="{{ route('admin.livechat.destroy', $script->id) }}" data-confirm-message="Are you sure you want to remove the live chat widget script?">
                         @csrf
                         @method('DELETE')
                     </form>

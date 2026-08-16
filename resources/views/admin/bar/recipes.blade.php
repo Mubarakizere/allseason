@@ -316,7 +316,7 @@
                                             <span class="badge bg-light text-dark border font-weight-normal" style="font-size: 11.5px; padding: 3px 8px;">
                                                 {{ number_format($recipe->quantity, 2) }} {{ $recipe->stockItem->unit ?? '' }}
                                             </span>
-                                            <form action="{{ route('admin.bar.recipes.destroy', $recipe->id) }}" method="POST" onsubmit="return confirm('Remove ingredient from recipe?')">
+                                            <form action="{{ route('admin.bar.recipes.destroy', $recipe->id) }}" method="POST" data-confirm-message="Are you sure you want to remove this ingredient from the cocktail recipe?">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn-remove-ingr" title="Remove Ingredient">
