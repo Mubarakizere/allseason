@@ -196,8 +196,11 @@ class PaymentController extends Controller
             'customer',
             'customer_details',
             'delivery_details',
-            'order_no'
+            'order_no',
+            'checkout',
         ]);
+
+        view()->share('customer_total_cart_items', 0);
     }
 
     protected function sendWhatsAppNotification(Order $order)
@@ -274,8 +277,9 @@ class PaymentController extends Controller
 
             $this->sendWhatsAppNotification($order);
             $this->deductStockForOrder($order, 'Online WeFlexfy Order');
-            $this->clearOrderSession();
         }
+
+        $this->clearOrderSession();
 
         return view('main-site.payment-success', compact('order'));
     }
