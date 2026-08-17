@@ -8,6 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="{{ config('site.name') }}">
 <meta name="robots" content="@yield('meta_robots', 'index, follow')">
+<meta name="google-site-verification" content="KcBfw91JlS01_cVPLnGRAQY4lxKoHp4bWyRlLety5eQ" />
 
 <!-- SEO Meta Tags -->
 @hasSection('title')
