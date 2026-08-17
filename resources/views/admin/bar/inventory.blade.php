@@ -160,6 +160,19 @@
             }
         });
 
+        $('#selectExistingBarDrink').on('change', function() {
+            var selectedName = $(this).val();
+            var selectedOption = $(this).find('option:selected');
+            var menuId = selectedOption.data('menu-id') || '';
+            
+            if (selectedName) {
+                $('#addDrinkName').val(selectedName);
+                $('#addDrinkMenuId').val(menuId);
+            } else {
+                $('#addDrinkMenuId').val('');
+            }
+        });
+
         document.querySelectorAll('.edit-drink-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var id = this.getAttribute('data-id');
@@ -298,9 +311,25 @@
                     </div>
                     <div class="modal-body py-3">
                         <div class="row g-2">
+                            <div class="col-12 mb-3 p-3 bg-light border rounded">
+                                <label class="fw-bold mb-1 text-primary" style="font-size: 12.5px;">
+                                    <i class="fas fa-magic me-1"></i> Quick Select From Existing Bar Items
+                                </label>
+                                <select id="selectExistingBarDrink" class="form-select border-primary shadow-sm" style="font-size: 13px;">
+                                    <option value="">-- Select an Existing Bar Menu Item (Or enter new below) --</option>
+                                    @if(isset($barMenuItems))
+                                        @foreach($barMenuItems as $bItem)
+                                            <option value="{{ $bItem->name }}" data-menu-id="{{ $bItem->id }}">{{ $bItem->name }} (Category: {{ $bItem->category->name ?? 'Bar' }})</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                <input type="hidden" name="menu_id" id="addDrinkMenuId" value="">
+                                <small class="text-muted d-block mt-1" style="font-size: 11px;">Selecting an existing item auto-fills the name and links this stock item to your bar menu.</small>
+                            </div>
+
                             <div class="col-md-6 mb-2">
                                 <label class="fw-semibold mb-1" style="font-size: 12px;">Drink Name / Brand *</label>
-                                <input type="text" name="name" class="form-control" required placeholder="e.g. Red Wine, Heineken, Jameson Whiskey" style="font-size: 13px;">
+                                <input type="text" name="name" id="addDrinkName" class="form-control" required placeholder="e.g. Red Wine, Heineken, Jameson Whiskey" style="font-size: 13px;">
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label class="fw-semibold mb-1" style="font-size: 12px;">Unit of Measure (UOM) *</label>

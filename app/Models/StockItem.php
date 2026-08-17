@@ -15,6 +15,11 @@ class StockItem extends Model
         return $this->belongsTo(StockCategory::class, 'stock_category_id');
     }
 
+    public function stockCategory()
+    {
+        return $this->belongsTo(StockCategory::class, 'stock_category_id');
+    }
+
     public function histories()
     {
         return $this->hasMany(StockHistory::class);

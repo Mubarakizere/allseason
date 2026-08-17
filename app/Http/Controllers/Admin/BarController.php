@@ -28,6 +28,22 @@ class BarController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
+        $barMenuItems = Menu::with('category')
+            ->where('type', 'bar')
+            ->orWhereHas('category', function($q) {
+                $q->where('name', 'LIKE', '%drink%')
+                  ->orWhere('name', 'LIKE', '%beverage%')
+                  ->orWhere('name', 'LIKE', '%bar%')
+                  ->orWhere('name', 'LIKE', '%wine%')
+                  ->orWhere('name', 'LIKE', '%beer%')
+                  ->orWhere('name', 'LIKE', '%cocktail%')
+                  ->orWhere('name', 'LIKE', '%alcohol%')
+                  ->orWhere('name', 'LIKE', '%soda%')
+                  ->orWhere('name', 'LIKE', '%juice%');
+            })
+            ->orderBy('name', 'asc')
+            ->get();
+
         $units = [
             'Bottles' => 'Bottles (Btl)',
             'Cans' => 'Cans',
@@ -39,7 +55,7 @@ class BarController extends Controller
             'Boxes' => 'Boxes',
         ];
 
-        return view('admin.bar.inventory', compact('drinks', 'barCat', 'units'));
+        return view('admin.bar.inventory', compact('drinks', 'barCat', 'barMenuItems', 'units'));
     }
 
     public function storeDrink(Request $request)
@@ -51,6 +67,7 @@ class BarController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'menu_id' => 'nullable|exists:menus,id',
             'unit' => 'required|string|max:50',
             'quantity' => 'required|numeric|min:0',
             'alert_quantity' => 'required|numeric|min:0',
@@ -58,10 +75,20 @@ class BarController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        $menuId = $request->input('menu_id');
+        unset($validated['menu_id']);
+
         $validated['stock_category_id'] = $barCat->id;
         $validated['sku'] = 'BAR-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $validated['name']), 0, 4)) . '-' . rand(100, 999);
 
-        StockItem::create($validated);
+        $stockItem = StockItem::create($validated);
+
+        if ($menuId) {
+            MenuRecipe::updateOrCreate(
+                ['menu_id' => $menuId, 'stock_item_id' => $stockItem->id],
+                ['quantity' => 1]
+            );
+        }
 
         return back()->with('success', 'Bar drink stock added successfully!');
     }

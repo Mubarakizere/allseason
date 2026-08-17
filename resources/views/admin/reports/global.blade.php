@@ -1,6 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'Global Daily Report — ' . \Carbon\Carbon::parse($selectedDate)->format('d M Y'))
+@php
+    $dateLabel = ($startDate === $endDate)
+        ? \Carbon\Carbon::parse($startDate)->format('d M Y')
+        : \Carbon\Carbon::parse($startDate)->format('d M Y') . ' — ' . \Carbon\Carbon::parse($endDate)->format('d M Y');
+@endphp
+
+@section('title', 'Global Report — ' . $dateLabel)
 
 @push('styles')
 <style>
@@ -17,13 +23,20 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     }
     .stat-icon-wrapper {
-        width: 48px;
-        height: 48px;
+        width: 46px;
+        height: 46px;
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 20px;
+        flex-shrink: 0;
+    }
+    .stat-value {
+        font-size: clamp(1.15rem, 2.5vw, 1.75rem);
+        font-weight: 700;
+        line-height: 1.2;
+        word-break: break-word;
     }
     .badge-soft-success {
         background-color: #d1fae5;
@@ -53,6 +66,12 @@
         font-size: 1.15rem;
         font-weight: 700;
         color: #111827;
+    }
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+    .table-custom {
+        min-width: 750px;
     }
     .table-custom th {
         background-color: #f9fafb;
@@ -95,6 +114,9 @@
             margin-bottom: 20px;
             text-align: center;
         }
+        .table-custom {
+            min-width: 100% !important;
+        }
         .page-break {
             page-break-before: always;
         }
@@ -112,44 +134,61 @@
     <div class="print-header">
         <h2 class="fw-bold mb-1">{{ config('app.name', 'All Season Garden') }}</h2>
         <h4 class="text-muted">Global Consolidated Daily Report</h4>
-        <p class="mb-0"><strong>Date:</strong> {{ \Carbon\Carbon::parse($selectedDate)->format('l, F j, Y') }} | <strong>Generated At:</strong> {{ now()->format('Y-m-d H:i:s') }}</p>
+        <p class="mb-0"><strong>Period:</strong> {{ $dateLabel }} | <strong>Generated At:</strong> {{ now()->format('Y-m-d H:i:s') }}</p>
         <hr>
     </div>
 
     <!-- Screen Header & Filters -->
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 no-print gap-3">
+    <div class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between mb-4 no-print gap-3">
         <div>
             <h3 class="fw-bold text-dark mb-1">
                 <i class="fas fa-chart-line text-primary me-2"></i>Global Daily Report
             </h3>
             <p class="text-muted mb-0">
                 Consolidated sales, room bookings, and venue bookings for 
-                <span class="fw-semibold text-dark">{{ \Carbon\Carbon::parse($selectedDate)->format('l, F j, Y') }}</span>
+                <span class="fw-semibold text-dark">{{ $dateLabel }}</span>
             </p>
         </div>
 
-        <div class="d-flex flex-wrap align-items-center gap-2">
+        <div class="d-flex flex-column flex-sm-row flex-wrap align-items-sm-center gap-2">
             <!-- Date Quick Presets -->
-            <a href="{{ route('admin.reports.global', ['date' => now()->format('Y-m-d')]) }}" 
-               class="btn btn-sm {{ $selectedDate === now()->format('Y-m-d') ? 'btn-primary' : 'btn-outline-secondary' }}">
-               Today
-            </a>
-            <a href="{{ route('admin.reports.global', ['date' => now()->subDay()->format('Y-m-d')]) }}" 
-               class="btn btn-sm {{ $selectedDate === now()->subDay()->format('Y-m-d') ? 'btn-primary' : 'btn-outline-secondary' }}">
-               Yesterday
-            </a>
+            <div class="btn-group btn-group-sm flex-wrap" role="group" aria-label="Date Presets">
+                <a href="{{ route('admin.reports.global', ['start_date' => now()->format('Y-m-d'), 'end_date' => now()->format('Y-m-d')]) }}" 
+                   class="btn {{ ($startDate === now()->format('Y-m-d') && $endDate === now()->format('Y-m-d')) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                   Today
+                </a>
+                <a href="{{ route('admin.reports.global', ['start_date' => now()->subDay()->format('Y-m-d'), 'end_date' => now()->subDay()->format('Y-m-d')]) }}" 
+                   class="btn {{ ($startDate === now()->subDay()->format('Y-m-d') && $endDate === now()->subDay()->format('Y-m-d')) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                   Yesterday
+                </a>
+                <a href="{{ route('admin.reports.global', ['start_date' => now()->startOfWeek()->format('Y-m-d'), 'end_date' => now()->endOfWeek()->format('Y-m-d')]) }}" 
+                   class="btn {{ ($startDate === now()->startOfWeek()->format('Y-m-d') && $endDate === now()->endOfWeek()->format('Y-m-d')) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                   This Week
+                </a>
+                <a href="{{ route('admin.reports.global', ['start_date' => now()->startOfMonth()->format('Y-m-d'), 'end_date' => now()->endOfMonth()->format('Y-m-d')]) }}" 
+                   class="btn {{ ($startDate === now()->startOfMonth()->format('Y-m-d') && $endDate === now()->endOfMonth()->format('Y-m-d')) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                   This Month
+                </a>
+            </div>
 
-            <!-- Datepicker Form -->
-            <form method="GET" action="{{ route('admin.reports.global') }}" class="d-flex align-items-center gap-2">
-                <input type="date" name="date" value="{{ $selectedDate }}" class="form-control form-control-sm shadow-sm" style="max-width: 160px;" required>
+            <!-- Date Range Form ("Date Between") -->
+            <form method="GET" action="{{ route('admin.reports.global') }}" class="d-flex flex-wrap align-items-center gap-2">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="text-muted small fw-semibold">From:</span>
+                    <input type="date" name="start_date" value="{{ $startDate }}" class="form-control form-control-sm shadow-sm" style="max-width: 135px;" required>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <span class="text-muted small fw-semibold">To:</span>
+                    <input type="date" name="end_date" value="{{ $endDate }}" class="form-control form-control-sm shadow-sm" style="max-width: 135px;" required>
+                </div>
                 <button type="submit" class="btn btn-sm btn-dark">
                     <i class="fas fa-filter me-1"></i> Filter
                 </button>
             </form>
 
             <!-- Print Button -->
-            <button onclick="window.print()" class="btn btn-sm btn-outline-dark">
-                <i class="fas fa-print me-1"></i> Print / Export PDF
+            <button onclick="window.print()" class="btn btn-sm btn-outline-dark ms-auto ms-sm-0">
+                <i class="fas fa-print me-1"></i> Print / PDF
             </button>
         </div>
     </div>
@@ -159,13 +198,13 @@
         <!-- Combined Revenue -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card report-card p-3 h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-uppercase font-weight-bold text-light mb-1 opacity-75" style="font-size: 0.75rem; letter-spacing: 0.05em;">Total Combined Revenue</p>
-                        <h2 class="fw-bold mb-0 text-white">{{ $site_settings->currency_symbol }}{{ number_format($combinedTotalRevenue, 2) }}</h2>
-                        <small class="text-light opacity-75">{{ $combinedTotalTransactions }} total transactions</small>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div style="min-width: 0;">
+                        <p class="text-uppercase font-weight-bold text-light mb-1 opacity-75" style="font-size: 0.72rem; letter-spacing: 0.05em;">Total Combined Revenue</p>
+                        <div class="stat-value text-white mb-0">{{ $site_settings->currency_symbol }}{{ number_format($combinedTotalRevenue, 2) }}</div>
+                        <small class="text-light opacity-75 d-block mt-1">{{ $combinedTotalTransactions }} total transactions</small>
                     </div>
-                    <div class="stat-icon-wrapper bg-primary text-white shadow-sm">
+                    <div class="stat-icon-wrapper bg-primary text-white shadow-sm flex-shrink-0">
                         <i class="fas fa-wallet"></i>
                     </div>
                 </div>
@@ -175,13 +214,13 @@
         <!-- Food & Sales Total -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card report-card p-3 h-100 border-0 shadow-sm">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Food & Beverage Sales</p>
-                        <h2 class="fw-bold mb-0 text-dark">{{ $site_settings->currency_symbol }}{{ number_format($salesTotal, 2) }}</h2>
-                        <small class="text-muted">{{ $ordersCount }} total orders</small>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div style="min-width: 0;">
+                        <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.72rem; letter-spacing: 0.05em;">Food & Beverage Sales</p>
+                        <div class="stat-value text-dark mb-0">{{ $site_settings->currency_symbol }}{{ number_format($salesTotal, 2) }}</div>
+                        <small class="text-muted d-block mt-1">{{ $ordersCount }} total orders</small>
                     </div>
-                    <div class="stat-icon-wrapper badge-soft-success">
+                    <div class="stat-icon-wrapper badge-soft-success flex-shrink-0">
                         <i class="fas fa-utensils"></i>
                     </div>
                 </div>
@@ -191,13 +230,13 @@
         <!-- Room Bookings Total -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card report-card p-3 h-100 border-0 shadow-sm">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Room Bookings</p>
-                        <h2 class="fw-bold mb-0 text-dark">{{ $site_settings->currency_symbol }}{{ number_format($roomsRevenue, 2) }}</h2>
-                        <small class="text-muted">{{ $roomsCount }} bookings / check-ins</small>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div style="min-width: 0;">
+                        <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.72rem; letter-spacing: 0.05em;">Room Bookings</p>
+                        <div class="stat-value text-dark mb-0">{{ $site_settings->currency_symbol }}{{ number_format($roomsRevenue, 2) }}</div>
+                        <small class="text-muted d-block mt-1">{{ $roomsCount }} bookings / check-ins</small>
                     </div>
-                    <div class="stat-icon-wrapper badge-soft-info">
+                    <div class="stat-icon-wrapper badge-soft-info flex-shrink-0">
                         <i class="fas fa-hotel"></i>
                     </div>
                 </div>
@@ -207,13 +246,13 @@
         <!-- Venue Bookings Total -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card report-card p-3 h-100 border-0 shadow-sm">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Venue Bookings</p>
-                        <h2 class="fw-bold mb-0 text-dark">{{ $site_settings->currency_symbol }}{{ number_format($venuesRevenue, 2) }}</h2>
-                        <small class="text-muted">{{ $venuesCount }} venue events</small>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div style="min-width: 0;">
+                        <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.72rem; letter-spacing: 0.05em;">Venue Bookings</p>
+                        <div class="stat-value text-dark mb-0">{{ $site_settings->currency_symbol }}{{ number_format($venuesRevenue, 2) }}</div>
+                        <small class="text-muted d-block mt-1">{{ $venuesCount }} venue events</small>
                     </div>
-                    <div class="stat-icon-wrapper badge-soft-primary">
+                    <div class="stat-icon-wrapper badge-soft-primary flex-shrink-0">
                         <i class="fas fa-glass-cheers"></i>
                     </div>
                 </div>
@@ -226,12 +265,12 @@
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
         <div class="card-header bg-white py-3 border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
             <div class="d-flex align-items-center gap-2">
-                <span class="stat-icon-wrapper badge-soft-success" style="width: 36px; height: 36px; font-size: 15px;">
+                <span class="stat-icon-wrapper badge-soft-success flex-shrink-0" style="width: 36px; height: 36px; font-size: 15px;">
                     <i class="fas fa-receipt"></i>
                 </span>
                 <div>
                     <h5 class="section-header-title mb-0">1. Restaurant & Food Sales</h5>
-                    <small class="text-muted">POS orders placed or completed on {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}</small>
+                    <small class="text-muted">POS orders placed or completed for period {{ $dateLabel }}</small>
                 </div>
             </div>
             
@@ -243,11 +282,52 @@
             </div>
         </div>
 
+        <div class="card-body p-3 border-bottom bg-light">
+            <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-3 bg-white border rounded shadow-sm">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted small font-weight-bold text-uppercase"><i class="fas fa-money-bill-wave text-success me-1"></i> Cash Sales</span>
+                            <span class="badge bg-success text-white">Cash</span>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-0 mt-2">{{ $site_settings->currency_symbol }}{{ number_format($cashSales, 2) }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-3 bg-white border rounded shadow-sm">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted small font-weight-bold text-uppercase"><i class="fas fa-mobile-alt text-primary me-1"></i> MoMo Pay</span>
+                            <span class="badge bg-primary text-white">Mobile</span>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-0 mt-2">{{ $site_settings->currency_symbol }}{{ number_format($momoPaySales, 2) }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-3 bg-white border rounded shadow-sm">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted small font-weight-bold text-uppercase"><i class="fas fa-credit-card text-warning me-1"></i> Bank / Card</span>
+                            <span class="badge bg-warning text-dark">Bank</span>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-0 mt-2">{{ $site_settings->currency_symbol }}{{ number_format($bankCardSales, 2) }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-3 bg-white border rounded shadow-sm">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted small font-weight-bold text-uppercase"><i class="fas fa-chart-pie text-secondary me-1"></i> Total Completed</span>
+                            <span class="badge bg-dark text-white">Total</span>
+                        </div>
+                        <h4 class="fw-bold text-success mb-0 mt-2">{{ $site_settings->currency_symbol }}{{ number_format($salesTotal, 2) }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card-body p-0">
             @if($orders->isEmpty())
                 <div class="text-center py-5 text-muted">
                     <i class="fas fa-shopping-basket fa-2x mb-2 text-secondary"></i>
-                    <p class="mb-0">No sales or orders recorded for this date.</p>
+                    <p class="mb-0">No sales or orders recorded for this period.</p>
                 </div>
             @else
                 <div class="table-responsive">
@@ -295,7 +375,7 @@
                                     <td>
                                         <small class="text-muted">
                                             {{ $order->orderItems->count() }} item(s):
-                                            {{ $order->orderItems->pluck('menu.name')->take(2)->implode(', ') }}
+                                            {{ $order->orderItems->pluck('menu.name')->filter()->take(2)->implode(', ') }}
                                             @if($order->orderItems->count() > 2) ... @endif
                                         </small>
                                     </td>
@@ -338,12 +418,12 @@
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
         <div class="card-header bg-white py-3 border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
             <div class="d-flex align-items-center gap-2">
-                <span class="stat-icon-wrapper badge-soft-info" style="width: 36px; height: 36px; font-size: 15px;">
+                <span class="stat-icon-wrapper badge-soft-info flex-shrink-0" style="width: 36px; height: 36px; font-size: 15px;">
                     <i class="fas fa-hotel"></i>
                 </span>
                 <div>
                     <h5 class="section-header-title mb-0">2. Room Bookings</h5>
-                    <small class="text-muted">Room stays active, created, checking in/out on {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}</small>
+                    <small class="text-muted">Room stays active, created, checking in/out for period {{ $dateLabel }}</small>
                 </div>
             </div>
 
@@ -358,7 +438,7 @@
             @if($roomBookings->isEmpty())
                 <div class="text-center py-5 text-muted">
                     <i class="fas fa-bed fa-2x mb-2 text-secondary"></i>
-                    <p class="mb-0">No room bookings recorded for this date.</p>
+                    <p class="mb-0">No room bookings recorded for this period.</p>
                 </div>
             @else
                 <div class="table-responsive">
@@ -442,12 +522,12 @@
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
         <div class="card-header bg-white py-3 border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
             <div class="d-flex align-items-center gap-2">
-                <span class="stat-icon-wrapper badge-soft-primary" style="width: 36px; height: 36px; font-size: 15px;">
+                <span class="stat-icon-wrapper badge-soft-primary flex-shrink-0" style="width: 36px; height: 36px; font-size: 15px;">
                     <i class="fas fa-glass-cheers"></i>
                 </span>
                 <div>
                     <h5 class="section-header-title mb-0">3. Venue & Event Bookings</h5>
-                    <small class="text-muted">Venue events scheduled or created on {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}</small>
+                    <small class="text-muted">Venue events scheduled or created for period {{ $dateLabel }}</small>
                 </div>
             </div>
 
@@ -462,7 +542,7 @@
             @if($venueBookings->isEmpty())
                 <div class="text-center py-5 text-muted">
                     <i class="fas fa-glass-cheers fa-2x mb-2 text-secondary"></i>
-                    <p class="mb-0">No venue bookings recorded for this date.</p>
+                    <p class="mb-0">No venue bookings recorded for this period.</p>
                 </div>
             @else
                 <div class="table-responsive">

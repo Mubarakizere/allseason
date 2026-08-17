@@ -244,20 +244,20 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
         // Admin Settings Category
         Route::get('category', [CategoryController::class, 'index'])->name('admin.categories.index');
         Route::post('category/store', [CategoryController::class, 'store'])->name('admin.categories.store');
-        Route::post('category/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
-        Route::post('category/delete/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+        Route::match(['POST', 'PUT'], 'category/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
+        Route::match(['POST', 'DELETE'], 'category/delete/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
 
         // Admin Waiters
         Route::get('waiters', [\App\Http\Controllers\Admin\WaiterController::class, 'index'])->name('admin.waiters.index');
         Route::post('waiters/store', [\App\Http\Controllers\Admin\WaiterController::class, 'store'])->name('admin.waiters.store');
-        Route::post('waiters/update/{id}', [\App\Http\Controllers\Admin\WaiterController::class, 'update'])->name('admin.waiters.update');
-        Route::post('waiters/delete/{id}', [\App\Http\Controllers\Admin\WaiterController::class, 'destroy'])->name('admin.waiters.destroy');
+        Route::match(['POST', 'PUT'], 'waiters/update/{id}', [\App\Http\Controllers\Admin\WaiterController::class, 'update'])->name('admin.waiters.update');
+        Route::match(['POST', 'DELETE'], 'waiters/delete/{id}', [\App\Http\Controllers\Admin\WaiterController::class, 'destroy'])->name('admin.waiters.destroy');
 
         // Admin Tables
         Route::get('restaurant-tables', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'index'])->name('admin.restaurant-tables.index');
         Route::post('restaurant-tables/store', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'store'])->name('admin.restaurant-tables.store');
-        Route::post('restaurant-tables/update/{id}', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'update'])->name('admin.restaurant-tables.update');
-        Route::post('restaurant-tables/delete/{id}', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'destroy'])->name('admin.restaurant-tables.destroy');
+        Route::match(['POST', 'PUT'], 'restaurant-tables/update/{id}', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'update'])->name('admin.restaurant-tables.update');
+        Route::match(['POST', 'DELETE'], 'restaurant-tables/delete/{id}', [\App\Http\Controllers\Admin\RestaurantTableController::class, 'destroy'])->name('admin.restaurant-tables.destroy');
 
         //Admin Settings Menu
         Route::get('menu', [MenuController::class, 'index'])->name('admin.menus.index');

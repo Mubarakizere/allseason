@@ -43,6 +43,11 @@
             padding: 1.8rem 2.2rem !important;
             flex-grow: 1;
         }
+        @media (max-width: 767.98px) {
+            .content-wrapper {
+                padding: 1rem 0.75rem !important;
+            }
+        }
         .page-body-wrapper {
             padding-top: 0 !important;
             min-height: 100vh;

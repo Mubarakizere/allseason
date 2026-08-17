@@ -65,7 +65,7 @@ class OrderController extends Controller
 
                         $completeButton = '';
                         if ($order->status === 'pending') {
-                            $completeButton = '<form action="'.route('admin.orders.update', $order->id).'" method="POST" style="display:inline;">'.csrf_field().'<input type="hidden" name="status" value="completed"><button type="submit" class="btn btn-sm btn-success" title="Mark Complete"><i class="fas fa-check"></i></button></form>';
+                            $completeButton = '<button type="button" class="btn btn-sm btn-success complete-order-btn" data-id="'.$order->id.'" data-order-no="'.$order->order_no.'" data-total="'.$order->total_price.'" data-payment="'.e($order->payment_method ?? 'Cash').'" data-bs-toggle="modal" data-bs-target="#completeOrderModal" title="Complete Order & Payment"><i class="fas fa-check me-1"></i> Complete</button>';
                         }
 
                         $deleteButton = Auth::user()->role == "global_admin" ? '<button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="'.$order->id.'" title="Delete Order"><i class="fas fa-trash"></i></button>' : '';
@@ -231,14 +231,34 @@ class OrderController extends Controller
         // Clear the cart
         session()->forget($request->cartkey);
 
+        // Determine whether order has kitchen vs bar items for ticket generation
+        $hasKitchenItems = false;
+        $hasBarItems = false;
+        foreach ($order->orderItems as $item) {
+            if ($this->isBarItem($item)) {
+                $hasBarItems = true;
+            } else {
+                $hasKitchenItems = true;
+            }
+        }
+
+        $kitchenTicketUrl = $hasKitchenItems ? route('admin.orders.receipt', $order->id) . '?type=kitchen' : null;
+        $barTicketUrl = $hasBarItems ? route('admin.orders.receipt', $order->id) . '?type=bar' : null;
+        $customerReceiptUrl = route('admin.orders.receipt', $order->id) . '?type=receipt';
+        $checkTicketUrl = route('admin.orders.receipt', $order->id) . '?type=check';
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'order_id' => $order->id,
                 'order_no' => $order->order_no,
-                'customer_receipt_url' => route('admin.orders.receipt', $order->id),
-                'kitchen_ticket_url' => route('admin.orders.receipt', $order->id) . '?kitchen=1',
-                'message' => 'Order #' . $order->order_no . ' created/updated successfully.'
+                'has_kitchen_items' => $hasKitchenItems,
+                'has_bar_items' => $hasBarItems,
+                'kitchen_ticket_url' => $kitchenTicketUrl,
+                'bar_ticket_url' => $barTicketUrl,
+                'check_ticket_url' => $checkTicketUrl,
+                'customer_receipt_url' => $customerReceiptUrl,
+                'message' => 'Order #' . $order->order_no . ' sent to Kitchen & Bar successfully.'
             ]);
         }
 
@@ -251,10 +271,42 @@ class OrderController extends Controller
         // Validate the input data
         $request->validate([
             'status' => 'required|in:completed,cancelled',
+            'payment_method' => 'nullable|string|max:255',
+            'split_cash' => 'nullable|numeric|min:0',
+            'split_momo' => 'nullable|numeric|min:0',
+            'split_bank' => 'nullable|numeric|min:0',
         ]);
         $order = Order::findOrFail($id);
 
-        $order->update(['status' => $request->status , 'updated_by_user_id' => Auth::id()]);
+        $updateData = [
+            'status' => $request->status,
+            'updated_by_user_id' => Auth::id()
+        ];
+
+        $paymentMethod = $request->payment_method;
+        if ($paymentMethod === 'Split' || $paymentMethod === 'Partial') {
+            $cashAmt = (float) $request->input('split_cash', 0);
+            $momoAmt = (float) $request->input('split_momo', 0);
+            $bankAmt = (float) $request->input('split_bank', 0);
+            $totalPaid = $cashAmt + $momoAmt + $bankAmt;
+
+            $parts = [];
+            if ($cashAmt > 0) $parts[] = 'Cash: ' . number_format($cashAmt, 2);
+            if ($momoAmt > 0) $parts[] = 'MoMo: ' . number_format($momoAmt, 2);
+            if ($bankAmt > 0) $parts[] = 'Bank/Card: ' . number_format($bankAmt, 2);
+
+            $paymentMethod = !empty($parts) ? 'Split (' . implode(', ', $parts) . ')' : 'Split Payment';
+            $updateData['amount_tendered'] = $totalPaid;
+            $updateData['change_due'] = max(0, $totalPaid - $order->total_price);
+        } elseif ($request->filled('payment_method')) {
+            $paymentMethod = $request->payment_method;
+        }
+
+        if ($paymentMethod) {
+            $updateData['payment_method'] = $paymentMethod;
+        }
+
+        $order->update($updateData);
         
         if ($request->status === 'completed') {
             session()->flash('auto_print_receipt_url', route('admin.orders.receipt', $order->id));
@@ -302,16 +354,84 @@ class OrderController extends Controller
 
     public function receipt(Request $request, $id)
     {
-        $order = Order::with(['orderItems', 'customer', 'restaurantTable', 'waiter'])->findOrFail($id);
+        $order = Order::with(['orderItems.menu.category', 'orderItems.menu.recipes.stockItem.category', 'customer', 'restaurantTable', 'waiter'])->findOrFail($id);
+        $site_settings = SiteSetting::first();
         
-        if ($order->order_type == 'instore' && $request->has('kitchen')) {
-            $unprintedItems = $order->orderItems()->whereNull('print_batch')->get();
-            if ($unprintedItems->isNotEmpty()) {
-                return view('admin.orders-kitchen-ticket', compact('order', 'unprintedItems'));
+        $type = strtolower($request->get('type', ''));
+        if (!$type) {
+            if ($request->has('kitchen')) {
+                $type = 'kitchen';
+            } elseif ($request->has('bar')) {
+                $type = 'bar';
+            } elseif ($request->has('check') || $request->has('ticket')) {
+                $type = 'check';
+            }
+        }
+
+        if (in_array($type, ['kitchen', 'bar', 'kot', 'bot', 'check', 'ticket'])) {
+            $unprintedOnly = $request->boolean('unprinted', false);
+            
+            $itemsQuery = $order->orderItems();
+            if ($unprintedOnly) {
+                $itemsQuery->whereNull('print_batch');
+            }
+            $items = $itemsQuery->get();
+
+            // Categorize into Kitchen vs Bar items
+            $kitchenItems = collect();
+            $barItems = collect();
+
+            foreach ($items as $item) {
+                if ($this->isBarItem($item)) {
+                    $barItems->push($item);
+                } else {
+                    $kitchenItems->push($item);
+                }
+            }
+
+            if ($type === 'bar' || $type === 'bot') {
+                $ticketTitle = 'BAR DISPENSE TICKET (BOT)';
+                $displayItems = $barItems->isNotEmpty() ? $barItems : $items;
+                return view('admin.orders-kitchen-ticket', compact('order', 'displayItems', 'ticketTitle', 'type'));
+            } elseif ($type === 'kitchen' || $type === 'kot') {
+                $ticketTitle = 'KITCHEN ORDER TICKET (KOT)';
+                $displayItems = $kitchenItems->isNotEmpty() ? $kitchenItems : $items;
+                return view('admin.orders-kitchen-ticket', compact('order', 'displayItems', 'ticketTitle', 'type'));
+            } elseif ($type === 'check' || $type === 'ticket') {
+                $ticketTitle = 'PRE-BILL ORDER TICKET';
+                return view('admin.orders-check-ticket', compact('order', 'items', 'ticketTitle', 'site_settings'));
             }
         }
         
-        return view('admin.orders-receipt', compact('order'));
+        return view('admin.orders-receipt', compact('order', 'site_settings'));
+    }
+
+    private function isBarItem($item) {
+        if ($item->menu) {
+            if ($item->menu->type === 'bar') {
+                return true;
+            } elseif ($item->menu->type === 'kitchen') {
+                return false;
+            }
+
+            if ($item->menu->category) {
+                $catName = strtolower($item->menu->category->name);
+                $barKeywords = ['drink', 'beverage', 'bar', 'wine', 'beer', 'cocktail', 'juice', 'alcohol', 'soda', 'liquor', 'whiskey', 'rum', 'vodka', 'gin', 'champagne', 'cider', 'spirit', 'water'];
+                foreach ($barKeywords as $kw) {
+                    if (str_contains($catName, $kw)) return true;
+                }
+            }
+
+            if ($item->menu->recipes) {
+                foreach ($item->menu->recipes as $recipe) {
+                    $stockCat = $recipe->stockItem ? ($recipe->stockItem->category ?? $recipe->stockItem->stockCategory) : null;
+                    if ($stockCat && str_contains(strtolower($stockCat->name), 'bar')) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public function markPrinted($id)

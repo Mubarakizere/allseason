@@ -286,6 +286,7 @@ public function deleteWorkingHour($id)
     {
         $validated = $request->validate([
             'country_id' => 'required|exists:countries,id',
+            'momo_code' => 'nullable|string|max:255',
         ]);
 
         $country = Country::findOrFail($validated['country_id']);
@@ -294,6 +295,7 @@ public function deleteWorkingHour($id)
         $siteSetting->country         = $country->name;
         $siteSetting->currency_symbol = $this->sanitizeHtmlContent($country->currency_symbol);
         $siteSetting->currency_code   = $country->currency_code;
+        $siteSetting->momo_code       = $validated['momo_code'] ?? null;
         $siteSetting->save();
 
         return redirect()->back()->with('success', 'Site settings saved successfully!');

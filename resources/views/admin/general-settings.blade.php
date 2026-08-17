@@ -713,9 +713,14 @@
                                 <input value="{{ $site_settings->currency_code ?? '' }}" type="text" id="currency_code" class="form-control bg-light" readonly style="font-size: 13px;">
                             </div>
                         </div>
+                        <div class="mb-3">
+                            <label for="momo_code" class="fw-semibold mb-1" style="font-size: 12px;">MoMo Pay Code / Merchant Number (Displayed on Receipts)</label>
+                            <input value="{{ $site_settings->momo_code ?? '' }}" type="text" id="momo_code" name="momo_code" class="form-control" placeholder="e.g. *182*8*1*123456# or 123456" style="font-size: 13px;">
+                            <small class="text-muted" style="font-size: 11px;">This code will be printed at the top/bottom of customer receipts for mobile money payment.</small>
+                        </div>
                     </div>
                     <div class="gs-card-footer">
-                        <button type="submit" class="btn btn-danger px-4 font-weight-bold">Save Currency Settings</button>
+                        <button type="submit" class="btn btn-danger px-4 font-weight-bold">Save Settings</button>
                     </div>
                 </form>
             </div>

@@ -20,13 +20,25 @@ class CategoryController extends Controller
    
     public function index()
     {
-        $categories = Category::all();
-        return view('admin.categories', compact('categories'));
+        $categories = Category::with(['menus', 'stockCategory'])->get();
+        $stockCategories = \App\Models\StockCategory::orderBy('name', 'asc')->get();
+        return view('admin.categories', compact('categories', 'stockCategories'));
     }
 
     public function store(CategoryRequest $request)
     {
-        Category::create(['name' => $request->name]);
+        $data = $request->validated();
+        if (empty($data['type'])) {
+            $catName = strtolower($data['name']);
+            $barKeywords = ['drink', 'beverage', 'bar', 'wine', 'beer', 'cocktail', 'juice', 'alcohol', 'soda', 'liquor', 'whiskey', 'rum', 'vodka', 'gin', 'champagne', 'cider', 'spirit', 'water'];
+            $isBar = false;
+            foreach ($barKeywords as $kw) {
+                if (str_contains($catName, $kw)) { $isBar = true; break; }
+            }
+            $data['type'] = $isBar ? 'bar' : 'kitchen';
+        }
+
+        Category::create($data);
         return redirect()->back()->with('success', 'Category created successfully.');
     }
     
@@ -34,7 +46,18 @@ class CategoryController extends Controller
     public function update(CategoryRequest $request, $id)
     {
         $category = Category::findOrFail($id);
-        $category->update(['name' => $request->name]);
+        $data = $request->validated();
+        if (empty($data['type'])) {
+            $catName = strtolower($data['name']);
+            $barKeywords = ['drink', 'beverage', 'bar', 'wine', 'beer', 'cocktail', 'juice', 'alcohol', 'soda', 'liquor', 'whiskey', 'rum', 'vodka', 'gin', 'champagne', 'cider', 'spirit', 'water'];
+            $isBar = false;
+            foreach ($barKeywords as $kw) {
+                if (str_contains($catName, $kw)) { $isBar = true; break; }
+            }
+            $data['type'] = $isBar ? 'bar' : 'kitchen';
+        }
+
+        $category->update($data);
         return redirect()->back()->with('success', 'Category updated successfully.');
     }
     

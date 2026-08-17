@@ -268,13 +268,19 @@
         
         <div class="top-actions">
             @if ($order->order_type === 'instore')
-                <button type="button" onclick="window.open('{{ route('admin.orders.receipt', $order->id) }}?kitchen=1', '_blank', 'width=400,height=600')" class="action-btn btn-kitchen">
-                    <i class="fas fa-fire"></i> Kitchen Ticket
+                <button type="button" onclick="window.open('{{ route('admin.orders.receipt', $order->id) }}?type=kitchen', '_blank', 'width=400,height=600')" class="action-btn btn-kitchen" title="Print Kitchen Ticket (KOT)">
+                    <i class="fas fa-fire"></i> Kitchen KOT
+                </button>
+                <button type="button" onclick="window.open('{{ route('admin.orders.receipt', $order->id) }}?type=bar', '_blank', 'width=400,height=600')" class="action-btn btn-kitchen" style="background:#f0fdf4; color:#15803d; border-color:#dcfce7;" title="Print Bar Ticket (BOT)">
+                    <i class="fas fa-wine-glass-alt"></i> Bar BOT
+                </button>
+                <button type="button" onclick="window.open('{{ route('admin.orders.receipt', $order->id) }}?type=check', '_blank', 'width=400,height=600')" class="action-btn btn-back" title="Print Pre-Bill Order Check">
+                    <i class="fas fa-file-invoice-dollar"></i> Pre-Bill Check
                 </button>
             @endif
 
-            <button type="button" onclick="window.open('{{ route('admin.orders.receipt', $order->id) }}', '_blank', 'width=400,height=600')" class="action-btn btn-receipt">
-                <i class="fas fa-print"></i> Receipt
+            <button type="button" onclick="window.open('{{ route('admin.orders.receipt', $order->id) }}?type=receipt', '_blank', 'width=400,height=600')" class="action-btn btn-receipt" title="Print Customer Receipt">
+                <i class="fas fa-receipt"></i> Customer Receipt
             </button>
 
             @if ($order->status_online_pay == 'paid' || is_null($order->status_online_pay))
@@ -580,11 +586,45 @@
                 <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
                     @csrf
                     <div class="modal-body py-4">
-                        <label for="orderStatus" class="fw-semibold mb-2" style="font-size: 13px;">Select New Status</label>
-                        <select class="form-select" id="orderStatus" name="status" style="height: 42px; font-size: 13px;">
-                            <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                            <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                        </select>
+                        <div class="mb-3">
+                            <label for="orderStatus" class="fw-semibold mb-2" style="font-size: 13px;">Order Status *</label>
+                            <select class="form-select" id="orderStatus" name="status" style="height: 42px; font-size: 13px;">
+                                <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="paymentMethod" class="fw-semibold mb-2" style="font-size: 13px;">Payment Method (Paid By) *</label>
+                            <select class="form-select" id="paymentMethod" name="payment_method" style="height: 42px; font-size: 13px;">
+                                <option value="Cash" {{ ($order->payment_method ?? 'Cash') == 'Cash' ? 'selected' : '' }}>Cash</option>
+                                <option value="MoMo Pay" {{ str_contains(strtolower($order->payment_method ?? ''), 'momo') || str_contains(strtolower($order->payment_method ?? ''), 'mobile') ? 'selected' : '' }}>MoMo Pay (Mobile Money)</option>
+                                <option value="Bank / Card" {{ str_contains(strtolower($order->payment_method ?? ''), 'bank') || str_contains(strtolower($order->payment_method ?? ''), 'card') ? 'selected' : '' }}>Bank Transfer / Card</option>
+                                <option value="Split" {{ str_contains(strtolower($order->payment_method ?? ''), 'split') ? 'selected' : '' }}>Split / Partial Payment (Multiple Methods)</option>
+                            </select>
+                        </div>
+
+                        {{-- Split Payment Panel --}}
+                        <div id="showSplitPaymentPanel" class="p-3 border rounded bg-light mt-3" style="display: none;">
+                            <label class="fw-bold mb-2 text-dark" style="font-size: 12px;"><i class="fas fa-coins text-warning me-1"></i> Specify Amount Paid by Each Method:</label>
+                            <div class="row g-2">
+                                <div class="col-12 mb-1">
+                                    <label class="small text-muted mb-0">Cash Paid ({!! $site_settings->currency_symbol !!}):</label>
+                                    <input type="number" step="0.01" min="0" name="split_cash" id="show_split_cash" class="form-control form-control-sm show-split-input" value="0.00">
+                                </div>
+                                <div class="col-12 mb-1">
+                                    <label class="small text-muted mb-0">MoMo Pay Paid ({!! $site_settings->currency_symbol !!}):</label>
+                                    <input type="number" step="0.01" min="0" name="split_momo" id="show_split_momo" class="form-control form-control-sm show-split-input" value="0.00">
+                                </div>
+                                <div class="col-12 mb-1">
+                                    <label class="small text-muted mb-0">Bank / Card Paid ({!! $site_settings->currency_symbol !!}):</label>
+                                    <input type="number" step="0.01" min="0" name="split_bank" id="show_split_bank" class="form-control form-control-sm show-split-input" value="0.00">
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center" style="font-size: 12px;">
+                                <span>Total Paid: <strong id="showSplitTotalPaid">{!! $site_settings->currency_symbol !!}0.00</strong></span>
+                                <span>Change / Balance: <strong id="showSplitBalance" class="text-danger">{!! $site_settings->currency_symbol !!}0.00</strong></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
                         <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
@@ -621,4 +661,43 @@
     @endif
 
 </div>
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        var currencySymbol = "{!! $site_settings->currency_symbol ?? 'RWF' !!}";
+        var orderTotal = {{ (float) $order->total_price }};
+
+        function toggleShowSplitPanel() {
+            var val = $('#paymentMethod').val();
+            if (val === 'Split') {
+                $('#showSplitPaymentPanel').slideDown(150);
+                calcShowSplitAmounts();
+            } else {
+                $('#showSplitPaymentPanel').slideUp(150);
+            }
+        }
+
+        function calcShowSplitAmounts() {
+            var cash = parseFloat($('#show_split_cash').val()) || 0;
+            var momo = parseFloat($('#show_split_momo').val()) || 0;
+            var bank = parseFloat($('#show_split_bank').val()) || 0;
+
+            var totalPaid = cash + momo + bank;
+            var balance = totalPaid - orderTotal;
+
+            $('#showSplitTotalPaid').text(currencySymbol + totalPaid.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}));
+
+            if (balance >= 0) {
+                $('#showSplitBalance').removeClass('text-danger').addClass('text-success').text('Change: ' + currencySymbol + balance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}));
+            } else {
+                $('#showSplitBalance').removeClass('text-success').addClass('text-danger').text('Due: ' + currencySymbol + Math.abs(balance).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}));
+            }
+        }
+
+        $('#paymentMethod').on('change', toggleShowSplitPanel);
+        $(document).on('input change', '.show-split-input', calcShowSplitAmounts);
+    });
+</script>
+@endpush
 @endsection

@@ -46,6 +46,9 @@
             @if($phone)
                 <div>Tel: {{ $phone->phone_number }}</div>
             @endif
+            @if(!empty($siteSetting?->momo_code))
+                <div>MoMo Pay: <strong>{{ $siteSetting->momo_code }}</strong></div>
+            @endif
             <div class="mt-1 font-bold">RECEIPT</div>
         </div>
         
@@ -139,6 +142,11 @@
         <div class="text-center font-bold">
             {{ strtoupper($order->status_online_pay ?? 'Paid') }} - {{ $order->payment_method ?? 'CASH' }}
         </div>
+        @if(!empty($siteSetting?->momo_code))
+            <div class="text-center mt-1">
+                <strong>MoMo Pay Code: {{ $siteSetting->momo_code }}</strong>
+            </div>
+        @endif
     </div>
     
     <script>

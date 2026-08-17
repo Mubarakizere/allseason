@@ -24,19 +24,33 @@ class GlobalReportController extends Controller
 
     public function index(Request $request)
     {
-        $selectedDateInput = $request->input('date');
+        $startDateInput = $request->input('start_date', $request->input('date'));
+        $endDateInput = $request->input('end_date', $request->input('date'));
 
         try {
-            $selectedDate = $selectedDateInput ? Carbon::parse($selectedDateInput)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
+            $startDate = $startDateInput ? Carbon::parse($startDateInput)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
         } catch (\Exception $e) {
-            $selectedDate = Carbon::today()->format('Y-m-d');
+            $startDate = Carbon::today()->format('Y-m-d');
         }
+
+        try {
+            $endDate = $endDateInput ? Carbon::parse($endDateInput)->format('Y-m-d') : $startDate;
+        } catch (\Exception $e) {
+            $endDate = $startDate;
+        }
+
+        if ($endDate < $startDate) {
+            $endDate = $startDate;
+        }
+
+        $selectedDate = $startDate; // For backwards compatibility
 
         // ==========================================
         // 1. FOOD & RESTAURANT SALES (POS/ORDERS)
         // ==========================================
         $ordersQuery = Order::with(['customer', 'waiter', 'restaurantTable', 'orderItems.menu'])
-            ->whereDate('created_at', $selectedDate);
+            ->whereDate('created_at', '>=', $startDate)
+            ->whereDate('created_at', '<=', $endDate);
 
         $orders = (clone $ordersQuery)->orderBy('created_at', 'desc')->get();
         $ordersCount = $orders->count();
@@ -51,6 +65,27 @@ class GlobalReportController extends Controller
         $deliveryOrdersCount = $orders->where('order_type', 'delivery')->count();
 
         // Payment method breakdown for orders
+        $cashSales = (clone $ordersQuery)->where('status', 'completed')
+            ->where(function($q) {
+                $q->where('payment_method', 'Cash')
+                  ->orWhere('payment_method', 'cash');
+            })->sum('total_price');
+
+        $momoPaySales = (clone $ordersQuery)->where('status', 'completed')
+            ->where(function($q) {
+                $q->where('payment_method', 'LIKE', '%momo%')
+                  ->orWhere('payment_method', 'LIKE', '%mobile%');
+            })->sum('total_price');
+
+        $bankCardSales = (clone $ordersQuery)->where('status', 'completed')
+            ->where(function($q) {
+                $q->where('payment_method', 'LIKE', '%bank%')
+                  ->orWhere('payment_method', 'LIKE', '%card%')
+                  ->orWhere('payment_method', 'WEFLEXFY');
+            })->sum('total_price');
+
+        $otherSales = max(0, $salesTotal - ($cashSales + $momoPaySales + $bankCardSales));
+
         $paymentMethodsBreakdown = $orders->groupBy('payment_method')->map(function ($group) {
             return [
                 'count' => $group->count(),
@@ -62,10 +97,14 @@ class GlobalReportController extends Controller
         // 2. ROOM BOOKINGS
         // ==========================================
         $roomBookings = RoomBooking::with('room')
-            ->where(function ($q) use ($selectedDate) {
-                $q->whereDate('created_at', $selectedDate)
-                    ->orWhereDate('check_in_date', $selectedDate)
-                    ->orWhereDate('check_out_date', $selectedDate);
+            ->where(function ($q) use ($startDate, $endDate) {
+                $q->where(function ($q2) use ($startDate, $endDate) {
+                    $q2->whereDate('created_at', '>=', $startDate)->whereDate('created_at', '<=', $endDate);
+                })->orWhere(function ($q2) use ($startDate, $endDate) {
+                    $q2->whereDate('check_in_date', '>=', $startDate)->whereDate('check_in_date', '<=', $endDate);
+                })->orWhere(function ($q2) use ($startDate, $endDate) {
+                    $q2->whereDate('check_out_date', '>=', $startDate)->whereDate('check_out_date', '<=', $endDate);
+                });
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -85,9 +124,12 @@ class GlobalReportController extends Controller
         // 3. VENUE BOOKINGS
         // ==========================================
         $venueBookings = VenueBooking::with(['venue', 'package'])
-            ->where(function ($q) use ($selectedDate) {
-                $q->whereDate('created_at', $selectedDate)
-                    ->orWhereDate('booking_date', $selectedDate);
+            ->where(function ($q) use ($startDate, $endDate) {
+                $q->where(function ($q2) use ($startDate, $endDate) {
+                    $q2->whereDate('created_at', '>=', $startDate)->whereDate('created_at', '<=', $endDate);
+                })->orWhere(function ($q2) use ($startDate, $endDate) {
+                    $q2->whereDate('booking_date', '>=', $startDate)->whereDate('booking_date', '<=', $endDate);
+                });
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -109,6 +151,8 @@ class GlobalReportController extends Controller
         $combinedTotalTransactions = $ordersCount + $roomsCount + $venuesCount;
 
         return view('admin.reports.global', compact(
+            'startDate',
+            'endDate',
             'selectedDate',
             'orders',
             'ordersCount',
@@ -119,6 +163,10 @@ class GlobalReportController extends Controller
             'cancelledOrdersCount',
             'instoreOrdersCount',
             'deliveryOrdersCount',
+            'cashSales',
+            'momoPaySales',
+            'bankCardSales',
+            'otherSales',
             'paymentMethodsBreakdown',
             'roomBookings',
             'roomsCount',

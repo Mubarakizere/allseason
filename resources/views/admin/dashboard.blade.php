@@ -323,8 +323,13 @@
                         </div>
                     </div>
                     <div class="dash-metric-value">{!! $site_settings->currency_symbol !!}{{ number_format($salesToday, 2) }}</div>
+                    <div class="small text-muted border-top pt-2 mt-1" style="font-size: 11px;">
+                        <span class="d-block"><i class="fas fa-money-bill-wave text-success me-1"></i> Cash: <strong>{!! $site_settings->currency_symbol !!}{{ number_format($cashSalesToday, 2) }}</strong></span>
+                        <span class="d-block"><i class="fas fa-mobile-alt text-primary me-1"></i> MoMo: <strong>{!! $site_settings->currency_symbol !!}{{ number_format($momoSalesToday, 2) }}</strong></span>
+                        <span class="d-block"><i class="fas fa-credit-card text-warning me-1"></i> Bank/Card: <strong>{!! $site_settings->currency_symbol !!}{{ number_format($bankCardSalesToday, 2) }}</strong></span>
+                    </div>
                 </div>
-                <div class="dash-metric-footer">
+                <div class="dash-metric-footer mt-2">
                     <span>View completed orders</span>
                     <i class="fas fa-chevron-right"></i>
                 </div>

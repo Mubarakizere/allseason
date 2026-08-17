@@ -59,6 +59,24 @@ class AdminController extends Controller
             ->where('status', 'completed')
             ->sum('total_price');
 
+        $cashSalesToday = Order::whereDate('created_at', now()->today())
+            ->where('status', 'completed')
+            ->where(function($q) {
+                $q->where('payment_method', 'Cash')->orWhere('payment_method', 'cash');
+            })->sum('total_price');
+
+        $momoSalesToday = Order::whereDate('created_at', now()->today())
+            ->where('status', 'completed')
+            ->where(function($q) {
+                $q->where('payment_method', 'LIKE', '%momo%')->orWhere('payment_method', 'LIKE', '%mobile%');
+            })->sum('total_price');
+
+        $bankCardSalesToday = Order::whereDate('created_at', now()->today())
+            ->where('status', 'completed')
+            ->where(function($q) {
+                $q->where('payment_method', 'LIKE', '%bank%')->orWhere('payment_method', 'LIKE', '%card%')->orWhere('payment_method', 'WEFLEXFY');
+            })->sum('total_price');
+
         // Active Room Bookings (pending or confirmed)
         $activeRoomBookings = \App\Models\RoomBooking::whereIn('status', ['pending', 'confirmed'])->count();
 
@@ -68,7 +86,7 @@ class AdminController extends Controller
         // Total Customers
         $totalCustomers = \App\Models\User::where('role', 'customer')->count();
     
-        return view('admin.dashboard', compact('formattedSalesData', 'salesToday', 'activeRoomBookings', 'activeVenueBookings', 'totalCustomers'));
+        return view('admin.dashboard', compact('formattedSalesData', 'salesToday', 'cashSalesToday', 'momoSalesToday', 'bankCardSalesToday', 'activeRoomBookings', 'activeVenueBookings', 'totalCustomers'));
     }
     
 

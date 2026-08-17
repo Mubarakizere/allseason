@@ -205,6 +205,64 @@
     });
 
     $(document).ready(function() {
+        var currencySymbol = "{!! $site_settings->currency_symbol ?? 'RWF' !!}";
+
+        $(document).on('click', '.complete-order-btn', function() {
+            var id = $(this).data('id');
+            var orderNo = $(this).data('order-no');
+            var total = parseFloat($(this).data('total')) || 0;
+            var payment = $(this).data('payment') || 'Cash';
+            var actionUrl = "{{ route('admin.orders.update', ':id') }}".replace(':id', id);
+
+            $('#completeOrderForm').attr('action', actionUrl);
+            $('#completeOrderNoLabel').text('#' + orderNo);
+            $('#completeOrderTotalLabel').text(currencySymbol + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}));
+            $('#completeOrderTotal').val(total);
+
+            if (payment.indexOf('Split') !== -1 || payment.indexOf('Partial') !== -1) {
+                $('#completePaymentMethod').val('Split');
+            } else if (payment.toLowerCase().indexOf('momo') !== -1 || payment.toLowerCase().indexOf('mobile') !== -1) {
+                $('#completePaymentMethod').val('MoMo Pay');
+            } else if (payment.toLowerCase().indexOf('bank') !== -1 || payment.toLowerCase().indexOf('card') !== -1) {
+                $('#completePaymentMethod').val('Bank / Card');
+            } else {
+                $('#completePaymentMethod').val('Cash');
+            }
+
+            toggleSplitPanel();
+        });
+
+        function toggleSplitPanel() {
+            var val = $('#completePaymentMethod').val();
+            if (val === 'Split') {
+                $('#splitPaymentPanel').slideDown(150);
+                calculateSplitAmounts();
+            } else {
+                $('#splitPaymentPanel').slideUp(150);
+            }
+        }
+
+        function calculateSplitAmounts() {
+            var totalOrder = parseFloat($('#completeOrderTotal').val()) || 0;
+            var cash = parseFloat($('#split_cash').val()) || 0;
+            var momo = parseFloat($('#split_momo').val()) || 0;
+            var bank = parseFloat($('#split_bank').val()) || 0;
+
+            var totalPaid = cash + momo + bank;
+            var balance = totalPaid - totalOrder;
+
+            $('#splitTotalPaidLabel').text(currencySymbol + totalPaid.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}));
+
+            if (balance >= 0) {
+                $('#splitBalanceLabel').removeClass('text-danger').addClass('text-success').text('Change: ' + currencySymbol + balance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}));
+            } else {
+                $('#splitBalanceLabel').removeClass('text-success').addClass('text-danger').text('Due: ' + currencySymbol + Math.abs(balance).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}));
+            }
+        }
+
+        $('#completePaymentMethod').on('change', toggleSplitPanel);
+        $(document).on('input change', '.split-calc-input', calculateSplitAmounts);
+
         $('#deleteModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);  
             var id = button.data('id');  
@@ -293,6 +351,67 @@
                         </tr>
                     </thead>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Complete Order & Payment Modal --}}
+    <div class="modal fade" id="completeOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0" style="border-radius: 10px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-weight-bold"><i class="fas fa-check-circle text-success me-1"></i> Complete Order & Select Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="completeOrderForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="status" value="completed">
+                    <input type="hidden" id="completeOrderTotal" value="0">
+                    <div class="modal-body py-3">
+                        <div class="p-3 bg-light rounded border mb-3 text-center">
+                            <div class="text-muted small">Order Reference: <strong id="completeOrderNoLabel">#--</strong></div>
+                            <div class="fs-5 font-weight-bold text-dark mt-1">Total Amount: <span id="completeOrderTotalLabel" class="text-success">{!! $site_settings->currency_symbol !!}0.00</span></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="completePaymentMethod" class="fw-semibold mb-1" style="font-size: 13px;">Payment Method *</label>
+                            <select class="form-select" id="completePaymentMethod" name="payment_method" required style="height: 42px; font-size: 13px;">
+                                <option value="Cash">Cash</option>
+                                <option value="MoMo Pay">MoMo Pay (Mobile Money)</option>
+                                <option value="Bank / Card">Bank Transfer / Card</option>
+                                <option value="Split">Split / Partial Payment (Multiple Methods)</option>
+                            </select>
+                        </div>
+
+                        {{-- Split Payment Panel --}}
+                        <div id="splitPaymentPanel" class="p-3 border rounded bg-white mb-3" style="display: none;">
+                            <label class="fw-bold mb-2 text-dark" style="font-size: 12px;"><i class="fas fa-coins text-warning me-1"></i> Specify Amount Paid by Each Method:</label>
+                            <div class="row g-2">
+                                <div class="col-12 mb-1">
+                                    <label class="small text-muted mb-0">Cash Paid ({!! $site_settings->currency_symbol !!}):</label>
+                                    <input type="number" step="0.01" min="0" name="split_cash" id="split_cash" class="form-control form-control-sm split-calc-input" value="0.00">
+                                </div>
+                                <div class="col-12 mb-1">
+                                    <label class="small text-muted mb-0">MoMo Pay Paid ({!! $site_settings->currency_symbol !!}):</label>
+                                    <input type="number" step="0.01" min="0" name="split_momo" id="split_momo" class="form-control form-control-sm split-calc-input" value="0.00">
+                                </div>
+                                <div class="col-12 mb-1">
+                                    <label class="small text-muted mb-0">Bank / Card Paid ({!! $site_settings->currency_symbol !!}):</label>
+                                    <input type="number" step="0.01" min="0" name="split_bank" id="split_bank" class="form-control form-control-sm split-calc-input" value="0.00">
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center" style="font-size: 12px;">
+                                <span>Total Paid: <strong id="splitTotalPaidLabel">{!! $site_settings->currency_symbol !!}0.00</strong></span>
+                                <span>Balance / Change: <strong id="splitBalanceLabel" class="text-danger">{!! $site_settings->currency_symbol !!}0.00</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
+                        <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success px-4 font-weight-bold"><i class="fas fa-check me-1"></i> Complete Order</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

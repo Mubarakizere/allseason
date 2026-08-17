@@ -15,10 +15,12 @@ class MenuRequest extends FormRequest
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'description' => 'required',
+            'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
+            'type' => 'nullable|in:kitchen,bar',
             'stock_item_id' => 'nullable|exists:stock_items,id',
+            'stock_quantity' => 'nullable|numeric|min:0.0001',
             'image' => 'nullable|image|max:2048',
             'remove_image' => 'nullable|boolean',
         ];

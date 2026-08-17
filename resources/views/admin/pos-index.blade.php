@@ -652,6 +652,24 @@ $(document).ready(function () {
         $('#confirmationModal').modal('show');
     });
 
+    function closeModalSafely() {
+        var modalEl = document.getElementById('confirmationModal');
+        if (modalEl) {
+            if (window.bootstrap && bootstrap.Modal) {
+                var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                } else {
+                    $(modalEl).modal('hide');
+                }
+            } else {
+                $(modalEl).modal('hide');
+            }
+        }
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').css({'overflow': '', 'padding-right': '', 'position': ''});
+    }
+
     $('#confirmSubmit').click(function() {
         var formData = $('#checkout-form').serialize();
         $('#confirmSubmit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
@@ -664,19 +682,10 @@ $(document).ready(function () {
                 'X-Requested-With': 'XMLHttpRequest'
             },
             success: function(response) {
-                $('#confirmationModal').modal('hide');
-                $('#confirmSubmit').prop('disabled', false).text('Confirm Order');
+                $('#confirmSubmit').prop('disabled', false).html('Confirm Order');
+                closeModalSafely();
 
                 if (response.success) {
-                    if (response.customer_receipt_url) {
-                        window.open(response.customer_receipt_url, '_blank', 'width=400,height=600');
-                    }
-                    if (response.kitchen_ticket_url) {
-                        setTimeout(function() {
-                            window.open(response.kitchen_ticket_url, '_blank', 'width=400,height=600');
-                        }, 400);
-                    }
-
                     $('#pos-alert-container').html(
                         '<div class="alert alert-success alert-dismissible fade show mb-3 border-0" role="alert" style="border-radius: 8px;">' +
                         '<strong><i class="fas fa-check-circle"></i> ' + response.message + '</strong>' +
@@ -690,10 +699,24 @@ $(document).ready(function () {
                     $('#open-order-banner').hide();
                     calculateCashChange();
                     checkCheckoutBtn();
+
+                    // Auto-open Kitchen Ticket (KOT) if order contains food items
+                    if (response.kitchen_ticket_url) {
+                        window.open(response.kitchen_ticket_url, '_blank', 'width=400,height=600');
+                    }
+                    
+                    // Auto-open Bar Ticket (BOT) if order contains beverage items
+                    if (response.bar_ticket_url) {
+                        setTimeout(function() {
+                            window.open(response.bar_ticket_url, '_blank', 'width=400,height=600');
+                        }, 400);
+                    }
                 }
             },
             error: function(xhr) {
-                $('#confirmSubmit').prop('disabled', false).text('Confirm Order');
+                $('#confirmSubmit').prop('disabled', false).html('Confirm & Send to Kitchen & Bar');
+                closeModalSafely();
+
                 var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error creating order.';
                 alert('Error: ' + msg);
             }
@@ -829,8 +852,8 @@ $(document).ready(function () {
                                 <label class="fw-bold mb-1" style="font-size: 12px; color: #374151;">Payment Method</label>
                                 <select class="pos-select" id="payment_method" name="payment_method" required>
                                     <option value="Cash">Cash</option>
-                                    <option value="Card">Card</option>
-                                    <option value="Mobile Pay">Mobile Pay</option>
+                                    <option value="MoMo Pay">MoMo Pay (Mobile Money)</option>
+                                    <option value="Bank / Card">Bank / Card</option>
                                     <option value="Pending">Pay Later / Pending</option>
                                 </select>
                             </div>
@@ -882,16 +905,16 @@ $(document).ready(function () {
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content border-0" style="border-radius: 10px;">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title font-weight-bold">Confirm Order</h5>
+                    <h5 class="modal-title font-weight-bold"><i class="fas fa-paper-plane text-danger me-1"></i> Confirm & Send Order</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center py-4">
-                    <h4 class="text-dark mb-2">Send this order to the kitchen?</h4>
-                    <p class="text-muted mb-0" style="font-size: 13px;">The order will be created and KOT / receipt will be generated.</p>
+                    <h4 class="text-dark mb-2">Send order to Kitchen & Bar?</h4>
+                    <p class="text-muted mb-0" style="font-size: 13px;">This order will be created and preparation tickets (KOT for Kitchen & BOT for Bar) will be generated automatically.</p>
                 </div>
                 <div class="modal-footer justify-content-center border-0 pt-0 pb-4">
                     <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger px-4" id="confirmSubmit">Confirm Order</button>
+                    <button type="button" class="btn btn-danger px-4 font-weight-bold" id="confirmSubmit">Confirm & Send to Kitchen & Bar</button>
                 </div>
             </div>
         </div>

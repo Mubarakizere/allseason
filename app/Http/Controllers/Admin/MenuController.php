@@ -40,13 +40,25 @@ class MenuController extends Controller
             $validated['image'] = '';
         }
     
+        if (empty($validated['type'])) {
+            $category = Category::find($validated['category_id']);
+            $catName = $category ? strtolower($category->name) : '';
+            $barKeywords = ['drink', 'beverage', 'bar', 'wine', 'beer', 'cocktail', 'juice', 'alcohol', 'soda', 'liquor', 'whiskey', 'rum', 'vodka', 'gin', 'champagne', 'cider', 'spirit', 'water'];
+            $isBar = false;
+            foreach ($barKeywords as $kw) {
+                if (str_contains($catName, $kw)) { $isBar = true; break; }
+            }
+            $validated['type'] = $isBar ? 'bar' : 'kitchen';
+        }
+
         $menu = Menu::create($validated);
     
         if ($request->filled('stock_item_id')) {
+            $stockQty = $request->filled('stock_quantity') ? (float) $request->stock_quantity : 1;
             \App\Models\MenuRecipe::create([
                 'menu_id' => $menu->id,
                 'stock_item_id' => $request->stock_item_id,
-                'quantity' => 1
+                'quantity' => $stockQty
             ]);
         }
     
@@ -80,14 +92,26 @@ class MenuController extends Controller
             $validated['image'] = $this->handleImageUpload($validated['image'], "menus");
         }
     
+        if (empty($validated['type'])) {
+            $category = Category::find($validated['category_id']);
+            $catName = $category ? strtolower($category->name) : '';
+            $barKeywords = ['drink', 'beverage', 'bar', 'wine', 'beer', 'cocktail', 'juice', 'alcohol', 'soda', 'liquor', 'whiskey', 'rum', 'vodka', 'gin', 'champagne', 'cider', 'spirit', 'water'];
+            $isBar = false;
+            foreach ($barKeywords as $kw) {
+                if (str_contains($catName, $kw)) { $isBar = true; break; }
+            }
+            $validated['type'] = $isBar ? 'bar' : 'kitchen';
+        }
+
         $menu->update($validated);
     
         $menu->recipes()->delete();
         if ($request->filled('stock_item_id')) {
+            $stockQty = $request->filled('stock_quantity') ? (float) $request->stock_quantity : 1;
             \App\Models\MenuRecipe::create([
                 'menu_id' => $menu->id,
                 'stock_item_id' => $request->stock_item_id,
-                'quantity' => 1
+                'quantity' => $stockQty
             ]);
         }
 

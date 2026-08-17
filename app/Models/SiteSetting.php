@@ -14,5 +14,6 @@ class SiteSetting extends Model
         'country',
         'currency_symbol',
         'currency_code',
+        'momo_code',
     ];
 }

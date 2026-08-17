@@ -163,8 +163,13 @@
         $(document).on('click', '.edit-btn', function() {
             let categoryId = $(this).data('id');
             let categoryName = $(this).data('name');
+            let categoryType = $(this).data('type');
+            let stockCategoryId = $(this).data('stock_category_id');
 
             $('#editName').val(categoryName);
+            $('#editType').val(categoryType || 'kitchen');
+            $('#editStockCategoryId').val(stockCategoryId || '');
+            
             let actionUrl = "{{ route('admin.categories.update', ':id') }}".replace(':id', categoryId);
             $('#editForm').attr('action', actionUrl);
         });
@@ -209,6 +214,8 @@
                     <thead>
                         <tr>
                             <th>Category Name</th>
+                            <th>Default Station</th>
+                            <th>Linked Stock Category</th>
                             <th>Total Menu Items</th>
                             <th style="min-width: 100px;">Actions</th>
                         </tr>
@@ -224,6 +231,22 @@
                                     </div>
                                 </td>
                                 <td>
+                                    @if($category->type === 'bar')
+                                        <span class="badge bg-success text-white" style="font-size: 11px;"><i class="fas fa-wine-glass-alt me-1"></i> Bar (BOT)</span>
+                                    @else
+                                        <span class="badge bg-danger text-white" style="font-size: 11px;"><i class="fas fa-fire me-1"></i> Kitchen (KOT)</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($category->stockCategory)
+                                        <span class="badge bg-light text-primary border" style="font-size: 11.5px;">
+                                            <i class="fas fa-boxes me-1"></i> {{ $category->stockCategory->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted small">—</span>
+                                    @endif
+                                </td>
+                                <td>
                                     <span class="badge bg-light text-secondary border" style="font-size: 11.5px;">
                                         {{ $category->menus->count() }} {{ $category->menus->count() == 1 ? 'item' : 'items' }}
                                     </span>
@@ -233,6 +256,8 @@
                                         <button class="btn btn-sm btn-outline-secondary edit-btn" 
                                                 data-id="{{ $category->id }}" 
                                                 data-name="{{ $category->name }}" 
+                                                data-type="{{ $category->type ?? 'kitchen' }}"
+                                                data-stock_category_id="{{ $category->stock_category_id ?? '' }}"
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#editModal"
                                                 title="Edit Category">
@@ -252,7 +277,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-4">No categories available.</td>
+                                <td colspan="5" class="text-center text-muted py-4">No categories available.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -272,9 +297,28 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body py-3">
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label for="name" class="fw-semibold mb-1" style="font-size: 12px;">Category Name *</label>
-                            <input type="text" name="name" class="form-control" id="name" required placeholder="e.g. Starters & Appetizers" style="font-size: 13px;">
+                            <input type="text" name="name" class="form-control" id="name" required placeholder="e.g. Starters & Appetizers, Wines & Spirits" style="font-size: 13px;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="type" class="fw-semibold mb-1" style="font-size: 12px;">Default Station Ticket *</label>
+                            <select name="type" id="type" class="form-select" required style="font-size: 13px;">
+                                <option value="kitchen">Kitchen Ticket (KOT)</option>
+                                <option value="bar">Bar Ticket (BOT)</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="stock_category_id" class="fw-semibold mb-1" style="font-size: 12px;">Linked Stock Inventory Category (Optional)</label>
+                            <select name="stock_category_id" id="stock_category_id" class="form-select" style="font-size: 13px;">
+                                <option value="">-- None (Unlinked) --</option>
+                                @if(isset($stockCategories))
+                                    @foreach($stockCategories as $sc)
+                                        <option value="{{ $sc->id }}">{{ $sc->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            <small class="text-muted" style="font-size: 11px;">Links this menu category to your raw stock/inventory category.</small>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0 pb-3">
@@ -298,9 +342,27 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body py-3">
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label for="editName" class="fw-semibold mb-1" style="font-size: 12px;">Category Name *</label>
                             <input type="text" name="name" class="form-control" id="editName" required style="font-size: 13px;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editType" class="fw-semibold mb-1" style="font-size: 12px;">Default Station Ticket *</label>
+                            <select name="type" id="editType" class="form-select" required style="font-size: 13px;">
+                                <option value="kitchen">Kitchen Ticket (KOT)</option>
+                                <option value="bar">Bar Ticket (BOT)</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="editStockCategoryId" class="fw-semibold mb-1" style="font-size: 12px;">Linked Stock Inventory Category (Optional)</label>
+                            <select name="stock_category_id" id="editStockCategoryId" class="form-select" style="font-size: 13px;">
+                                <option value="">-- None (Unlinked) --</option>
+                                @if(isset($stockCategories))
+                                    @foreach($stockCategories as $sc)
+                                        <option value="{{ $sc->id }}">{{ $sc->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0 pb-3">
