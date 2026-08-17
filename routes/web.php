@@ -39,6 +39,7 @@ use App\Http\Controllers\Admin\StockItemController;
 use App\Http\Controllers\Admin\StockPurchaseController;
 use App\Http\Controllers\Admin\StockIssueController;
 use App\Http\Controllers\Admin\StockHistoryController;
+use App\Http\Controllers\Admin\GlobalReportController;
 
 
 Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
@@ -236,6 +237,9 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
 
     // Routes with CheckRoleAdmin is Global Admin middleware
     Route::middleware(CheckRoleAdmin::class)->group(function () {
+
+        // Global Reports
+        Route::get('reports/global', [GlobalReportController::class, 'index'])->name('admin.reports.global');
 
         // Admin Settings Category
         Route::get('category', [CategoryController::class, 'index'])->name('admin.categories.index');

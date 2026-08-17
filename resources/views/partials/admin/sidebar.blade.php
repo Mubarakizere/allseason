@@ -444,6 +444,13 @@
         {{-- MANAGEMENT --}}
         <li class="sb-section-label">Management</li>
 
+        <li class="sb-item {{ request()->route()->named('admin.reports.global') ? 'is-active' : '' }}">
+            <a class="sb-link" href="{{ route('admin.reports.global') }}">
+                <i class="fas fa-chart-line sb-icon"></i>
+                <span>Global Daily Report</span>
+            </a>
+        </li>
+
         <li class="sb-item {{ request()->route()->named('admin.payroll.index') ? 'is-active' : '' }}">
             <a class="sb-link" href="{{ route('admin.payroll.index') }}">
                 <i class="fas fa-file-invoice-dollar sb-icon"></i>
