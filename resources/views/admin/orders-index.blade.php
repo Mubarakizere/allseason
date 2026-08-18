@@ -263,12 +263,14 @@
         $('#completePaymentMethod').on('change', toggleSplitPanel);
         $(document).on('input change', '.split-calc-input', calculateSplitAmounts);
 
-        $('#deleteModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);  
-            var id = button.data('id');  
-            var actionUrl = "{{ route('admin.orders.destroy', ':id') }}".replace(':id', id);
-            $('#deleteForm').attr('action', actionUrl);
-        });
+        @if ($loggedInUser->role == "global_admin")
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);  
+                var id = button.data('id');  
+                var actionUrl = "{{ route('admin.orders.destroy', ':id') }}".replace(':id', id);
+                $('#deleteForm').attr('action', actionUrl);
+            });
+        @endif
 
         // Auto-print polling every 10 seconds
         setInterval(function() {

@@ -14,7 +14,11 @@ class CheckRoleAdmin
             return $next($request);
         }
 
-        // If user is not authorized, redirect or abort
+        // If user is not authorized, redirect based on role
+        if (Auth::check() && Auth::user()->role === 'sales') {
+            return redirect()->route('admin.pos.index')->with('error', 'You do not have permission to access this page.');
+        }
+
         return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to access this page.');
     }
 }

@@ -326,6 +326,10 @@ class OrderController extends Controller
  
     public function destroy($id)
     {
+        if (Auth::user()->role !== 'global_admin') {
+            return redirect()->route('admin.orders.index')->with('error', 'You do not have permission to delete orders.');
+        }
+
         $order = Order::findOrFail($id);
         $order->deleteWithRelations();
 

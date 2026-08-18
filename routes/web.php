@@ -196,16 +196,6 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
     Route::get('change-password', [AdminController::class, 'showChangePasswordForm'])->name('change.password.form');
     Route::post('change-password', [AdminController::class, 'changePassword'])->name('change-password.update');
 
-    //Admin Blog routes
-    Route::get('blog', [BlogController::class, 'index'])->name('admin.blog.index');
-    Route::get('blog/create', [BlogController::class, 'create'])->name('admin.blog.create');
-    Route::post('blog', [BlogController::class, 'store'])->name('admin.blog.store');
-    Route::get('blog/{id}/edit', [BlogController::class, 'edit'])->name('admin.blog.edit');
-    Route::put('blog/{id}', [BlogController::class, 'update'])->name('admin.blog.update');
-    Route::delete('blog/{id}', [BlogController::class, 'destroy'])->name('admin.blog.destroy');
-     
-
-
     // Admin Cart / POS routes
     Route::get('pos/', [CartController::class, 'index'])->name('admin.pos.index');
     Route::post('cart/add', [CartController::class, 'addToCart'])->name('admin.cart.add');
@@ -215,8 +205,7 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
     Route::post('cart/update', [CartController::class, 'updateCartQuantity'])->name('admin.cart.update');
     Route::post('cart/update-note', [CartController::class, 'updateCartItemNote'])->name('admin.cart.update-note');
 
- 
-    //Admin Order routes
+    // Admin Order routes
     Route::get('orders/unprinted', [OrderController::class, 'unprinted'])->name('admin.orders.unprinted');
     Route::get('orders/table/{id}', [OrderController::class, 'getOpenOrder'])->name('admin.orders.table');
     Route::get('orders/{id}/receipt', [OrderController::class, 'receipt'])->name('admin.orders.receipt');
@@ -224,19 +213,24 @@ Route::prefix('admin')->middleware(RedirectIfNotAdmin::class)->group(function ()
     Route::get('orders/{filter?}', [OrderController::class, 'index'])->name('admin.orders.index');
     Route::get('order/{id}', [OrderController::class, 'show'])->name('admin.order.show');
     Route::post('order/create', [OrderController::class, 'createOrder'])->name('admin.order.store');
-    Route::post('orders/update/{id}', [OrderController::class, 'update'])->name('admin.orders.update');
+    Route::match(['POST', 'PUT'], 'orders/update/{id}', [OrderController::class, 'update'])->name('admin.orders.update');
     Route::delete('orders/destroy/{id}', [OrderController::class, 'destroy'])->name('admin.orders.destroy')->middleware(CheckRoleAdmin::class);
-    
-
-    //Admin Manage Booking
+    // Admin Manage Booking
     Route::get('table-bookings', [AdminTableBookingController::class, 'index'])->name('admin.table-bookings');
     Route::post('table-bookings/store', [AdminTableBookingController::class, 'store'])->name('admin.table-bookings.store');
     Route::put('table-bookings/{id}', [AdminTableBookingController::class, 'update'])->name('admin.table-bookings.update');
     Route::delete('table-bookings/{id}', [AdminTableBookingController::class, 'destroy'])->name('admin.table-bookings.destroy');
-   
 
     // Routes with CheckRoleAdmin is Global Admin middleware
     Route::middleware(CheckRoleAdmin::class)->group(function () {
+
+        // Admin Blog routes
+        Route::get('blog', [BlogController::class, 'index'])->name('admin.blog.index');
+        Route::get('blog/create', [BlogController::class, 'create'])->name('admin.blog.create');
+        Route::post('blog', [BlogController::class, 'store'])->name('admin.blog.store');
+        Route::get('blog/{id}/edit', [BlogController::class, 'edit'])->name('admin.blog.edit');
+        Route::put('blog/{id}', [BlogController::class, 'update'])->name('admin.blog.update');
+        Route::delete('blog/{id}', [BlogController::class, 'destroy'])->name('admin.blog.destroy');
 
         // Global Reports
         Route::get('reports/global', [GlobalReportController::class, 'index'])->name('admin.reports.global');

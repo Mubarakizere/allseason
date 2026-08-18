@@ -360,15 +360,14 @@
             </div>
         </li>
 
-        @if($loggedInUser->role !== 'sales')
         <li class="sb-item {{ request()->route()->named('admin.table-bookings') ? 'is-active' : '' }}">
             <a class="sb-link" href="{{ route('admin.table-bookings') }}">
                 <i class="fas fa-calendar-check sb-icon"></i>
                 <span>Table Bookings</span>
             </a>
         </li>
-        @endif
 
+        @if($loggedInUser->role !== 'sales')
         {{-- KITCHEN --}}
         <li class="sb-section-label">Kitchen</li>
 
@@ -438,6 +437,7 @@
                 </ul>
             </div>
         </li>
+        @endif
 
         @if ($loggedInUser->role == "global_admin")
 

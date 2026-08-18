@@ -184,6 +184,7 @@
             $('#editForm').attr('action', actionUrl);
         });
 
+        @if($loggedInUser->role !== 'sales')
         // Delete Button Logic
         $(document).on('click', '.delete-btn', function() {
             let id = $(this).data('id');
@@ -191,6 +192,7 @@
             let actionUrl = "{{ route('admin.table-bookings.destroy', ':id') }}".replace(':id', id);
             $('#deleteForm').attr('action', actionUrl);
         });
+        @endif
     });
 </script>
 @endpush
@@ -282,6 +284,7 @@
                                             <i class="fas fa-edit"></i>
                                         </button>
 
+                                        @if($loggedInUser->role !== 'sales')
                                         <!-- Delete -->
                                         <button class="btn btn-sm btn-outline-danger delete-btn" 
                                                 data-bs-toggle="modal" 
@@ -291,6 +294,7 @@
                                                 title="Delete Booking">
                                             <i class="fas fa-trash"></i>
                                         </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -443,6 +447,7 @@
         </div>
     </div>
 
+    @if($loggedInUser->role !== 'sales')
     {{-- Delete Modal --}}
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -465,6 +470,7 @@
             </form>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

@@ -57,6 +57,10 @@ class TableBookingController extends Controller
 
     public function destroy($id)
     {
+        if (auth()->user() && auth()->user()->role === 'sales') {
+            return back()->with('error', 'You do not have permission to delete table bookings.');
+        }
+
         $booking = TableBooking::findOrFail($id);
         $booking->delete();
         return back()->with('success', 'Table booking deleted successfully.');

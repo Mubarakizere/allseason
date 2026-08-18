@@ -31,6 +31,10 @@ class AdminController extends Controller
     
     public function index()
     {
+        if (Auth::user() && Auth::user()->role === 'sales') {
+            return redirect()->route('admin.pos.index')->with('error', 'You do not have permission to access the main dashboard.');
+        }
+
         $currentYear = now()->year;
     
         $isSqlite = \DB::connection()->getDriverName() === 'sqlite';
