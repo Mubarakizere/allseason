@@ -181,7 +181,7 @@
                             @if($venue->images->count() > 0)
                                 <img src="{{ asset('storage/' . $venue->images->first()->image_path) }}" alt="{{ $venue->name }}">
                             @else
-                                <img src="/assets/images/about_img5.jpg" alt="{{ $venue->name }}">
+                                <img src="/assets/images/placeholder.jpg" alt="{{ $venue->name }}">
                             @endif
                         </div>
                         <div class="venue-content">

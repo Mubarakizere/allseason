@@ -175,11 +175,7 @@
 @section('canonical_url', route('rooms.show', $room->id))
 @section('og_title', $room->name . ' - ' . config('site.name'))
 @section('og_description', Str::limit(strip_tags($room->description ? $room->description : 'Reserve ' . $room->name . ' at ' . config('site.name')), 155))
-@if($room->image)
-@section('og_image', asset('storage/' . $room->image))
-@elseif($room->images->count() > 0)
-@section('og_image', asset('storage/' . $room->images->first()->image))
-@endif
+@section('og_image', $room->image_url)
 
 @section('schema')
 <script type="application/ld+json">
@@ -234,12 +230,12 @@
                     <div class="carousel-inner">
                         @if($room->image)
                             <div class="carousel-item active">
-                                <img src="{{ asset('storage/' . $room->image) }}" class="d-block w-100" alt="Room Main Image">
+                                <img src="{{ asset('storage/' . $room->image) }}" class="d-block w-100" alt="Room Main Image" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';">
                             </div>
                         @endif
                         @foreach($room->images as $index => $image)
                             <div class="carousel-item {{ !$room->image && $index == 0 ? 'active' : '' }}">
-                                <img src="{{ asset('storage/' . $image->image) }}" class="d-block w-100" alt="Room Image">
+                                <img src="{{ asset('storage/' . $image->image) }}" class="d-block w-100" alt="Room Image" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';">
                             </div>
                         @endforeach
                     </div>
@@ -253,6 +249,10 @@
                         <span class="sr-only">Next</span>
                     </a>
                     @endif
+                </div>
+                @else
+                <div class="room-single-image">
+                    <img src="{{ $room->image_url }}" class="d-block w-100" alt="{{ $room->name }}" style="height: 500px; object-fit: cover; border-radius: 20px;" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';">
                 </div>
                 @endif
             </div>

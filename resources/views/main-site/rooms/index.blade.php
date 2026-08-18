@@ -176,13 +176,7 @@
                             <div class="room-price-badge">
                                 {!! $site_settings->currency_symbol !!}{{ number_format($room->price, 2) }} <span style="font-size: 0.8rem; font-weight: normal; color: #666;">/ Night</span>
                             </div>
-                            @if($room->image)
-                                <img src="{{ asset('storage/' . $room->image) }}" class="room-img" alt="{{ $room->name }}">
-                            @elseif($room->images->count() > 0)
-                                <img src="{{ asset('storage/' . $room->images->first()->image) }}" class="room-img" alt="{{ $room->name }}">
-                            @else
-                                <img src="/assets/images/about_img5.jpg" class="room-img" alt="{{ $room->name }}">
-                            @endif
+                            <img src="{{ $room->image_url }}" class="room-img" alt="{{ $room->name }}" onerror="this.onerror=null;this.src='/assets/images/placeholder.jpg';">
                         </div>
                         <div class="room-details">
                             <h3 class="room-title">{{ $room->name }}</h3>
