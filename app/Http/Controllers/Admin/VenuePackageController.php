@@ -32,7 +32,7 @@ class VenuePackageController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'features' => 'nullable|string', // comma separated or newline separated
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:30720',
         ]);
 
         $package = VenuePackage::create([
@@ -68,7 +68,7 @@ class VenuePackageController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'features' => 'nullable|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:30720',
         ]);
 
         $package->update([

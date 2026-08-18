@@ -29,7 +29,7 @@ class VenueController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:30720',
             'deposit_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
@@ -56,7 +56,7 @@ class VenueController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:30720',
             'deposit_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
