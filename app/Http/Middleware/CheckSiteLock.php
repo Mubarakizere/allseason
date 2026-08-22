@@ -10,12 +10,15 @@ class CheckSiteLock
 {
     /**
      * Handle an incoming request.
-     * When SITE_LOCKED=true in .env, all routes redirect to the lockout page.
+     * If the file storage/framework/site_locked exists, block all access.
+     * This bypasses config caching issues entirely.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // If site is locked and user is NOT already on the lockout page
-        if (env('SITE_LOCKED', false) && !$request->is('site-locked')) {
+        $lockFile = storage_path('framework/site_locked');
+
+        // If lock file exists and user is NOT already on the lockout page
+        if (file_exists($lockFile) && !$request->is('site-locked')) {
             return redirect()->route('site.locked');
         }
 
