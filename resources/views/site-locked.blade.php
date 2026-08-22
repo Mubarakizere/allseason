@@ -233,6 +233,13 @@
             height: 16px;
         }
 
+        .email-text {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #a1a1aa;
+            letter-spacing: 0.3px;
+        }
+
         .footer-text {
             margin-top: 32px;
             font-size: 12px;
@@ -282,22 +289,6 @@
 
             <h1>This Website Is<br>Currently Unavailable</h1>
 
-            <p class="subtitle">
-                This website has been temporarily suspended due to an outstanding payment with the development team. 
-                Service will be fully restored once the balance is settled.
-            </p>
-
-            <div class="divider"></div>
-
-            <div class="info-box">
-                <div class="label">What Happened?</div>
-                <div class="detail">
-                    The development and hosting services for this website require payment to remain active. 
-                    The current invoice is <strong>overdue</strong>. 
-                    Once payment is confirmed, the site will be back online immediately.
-                </div>
-            </div>
-
             <div class="contact-section">
                 <a href="mailto:izeremubarak05@gmail.com" class="contact-link">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -305,6 +296,7 @@
                     </svg>
                     Contact Developer
                 </a>
+                <p class="email-text">izeremubarak05@gmail.com</p>
             </div>
 
             <div class="footer-text">
@@ -314,3 +306,4 @@
     </div>
 </body>
 </html>
+
