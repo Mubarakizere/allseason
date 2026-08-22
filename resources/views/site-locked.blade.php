@@ -308,7 +308,7 @@
             </div>
 
             <div class="footer-text">
-                <p>Ref: <span class="ref">ASG-{{ date('Y') }}-{{ str_pad(date('md'), 4, '0') }}</span></p>
+                <p>Ref: <span class="ref">ASG-<?= date('Y') ?>-<?= str_pad(date('md'), 4, '0') ?></span></p>
             </div>
         </div>
     </div>
